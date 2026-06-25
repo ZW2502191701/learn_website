@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JavaPath · 边读边练</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#16201a; --paper:#f3efe6; --panel:#fbf9f4; --line:#d9d2c2;
+    --jade:#1f6f4f; --jade-deep:#124231; --amber:#c4651f;
+    --code-bg:#16201a; --code-ink:#e9e4d6; --muted:#6b6557;
+    --radius:4px; --maxw:1220px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:"Noto Sans SC",system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(243,239,230,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:14px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+  .logo .mark{width:30px;height:30px;border-radius:6px;background:var(--jade);color:#fff;display:grid;place-items:center;font-family:"JetBrains Mono";font-weight:700;font-size:15px;box-shadow:2px 2px 0 var(--jade-deep)}
+  .logo small{color:var(--muted);font-weight:400;font-size:12px}
+  .nav .grow{flex:1}
+  .progwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:"JetBrains Mono"}
+  .progbar{width:110px;height:6px;background:var(--line);border-radius:30px;overflow:hidden}
+  .progbar i{display:block;height:100%;background:var(--jade);width:0;transition:width .4s}
+
+  .shell{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:264px 1fr;gap:34px}
+  aside{position:sticky;top:72px;align-self:start;height:calc(100vh - 88px);overflow-y:auto;padding:22px 0 60px}
+  .map-title{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+
+  /* 章节（模块）手风琴 */
+  .module{margin-bottom:6px}
+  .module>.mhead{font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px;padding-left:2px}
+  .chap{cursor:pointer;font-size:13.5px;font-weight:500;padding:7px 8px;border-radius:var(--radius);display:flex;align-items:center;gap:8px;transition:background .15s}
+  .chap:hover{background:#ece7da}
+  .chap.open{color:var(--jade-deep)}
+  .chap .ci{font-family:"JetBrains Mono";font-size:11px;color:var(--amber);width:18px}
+  .chap .cprog{margin-left:auto;font-size:10px;color:var(--muted);font-family:"JetBrains Mono"}
+  .chap .caret{transition:transform .2s;color:var(--muted);font-size:10px}
+  .chap.open .caret{transform:rotate(90deg)}
+  .grp{margin:2px 0 8px}
+  .grp h4{font-size:11px;color:var(--muted);font-weight:700;margin:8px 0 4px 10px;letter-spacing:.02em}
+  .grp ul{list-style:none}
+  .grp li a{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);padding:4px 0 4px 14px;margin-left:8px;border-left:2px solid var(--line);transition:all .15s;cursor:pointer}
+  .grp li a:hover{border-color:var(--jade);color:var(--jade)}
+  .grp li a.cur{border-color:var(--amber);color:var(--amber);font-weight:500}
+  .grp li a .chk{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:8px;color:#fff}
+  .grp li a.done .chk{background:var(--jade);border-color:var(--jade)}
+
+  main{padding:22px 0 80px;min-width:0}
+  .hero{padding:30px 0 24px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:12px}
+  .hero h1{font-family:"Lora",serif;font-size:clamp(26px,4.2vw,40px);line-height:1.16;font-weight:700;letter-spacing:-.01em}
+  .hero h1 em{font-style:italic;color:var(--jade)}
+  .hero p{max-width:600px;color:var(--muted);margin-top:12px;font-size:14.5px}
+  .hero .stats{display:flex;gap:28px;margin-top:20px;flex-wrap:wrap}
+  .stat .n{font-family:"JetBrains Mono";font-size:22px;font-weight:700;color:var(--jade)}
+  .stat .l{font-size:11.5px;color:var(--muted)}
+
+  .crumb{font-size:12.5px;color:var(--muted);font-family:"JetBrains Mono";margin-bottom:10px}
+  .crumb b{color:var(--jade)}
+  h2.unit{font-family:"Lora",serif;font-size:27px;font-weight:700;margin-bottom:6px;line-height:1.2}
+  .unit-tags{display:flex;gap:8px;margin:12px 0 22px;flex-wrap:wrap}
+  .tag{font-size:11.5px;font-family:"JetBrains Mono";padding:3px 9px;border-radius:30px;background:#e7efe9;color:var(--jade-deep);border:1px solid #cfe0d5}
+  .tag.hot{background:#f6e6da;color:var(--amber);border-color:#ecd0bb}
+  .raw-note{background:#fbf3e3;border:1px solid #ecd9b8;border-radius:var(--radius);padding:10px 14px;font-size:12.5px;color:#8a6d2f;margin-bottom:18px}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+  .panel .ph{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:12px;font-family:"JetBrains Mono";letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .panel .ph .ic{width:8px;height:8px;border-radius:2px}
+  .read .ic{background:var(--jade)}
+  .play .ic{background:var(--amber)}
+  .read .body{padding:18px 20px;font-size:14.5px}
+  .read .body h5{font-family:"Lora",serif;font-size:16px;margin:16px 0 6px;color:var(--jade-deep)}
+  .read .body h5:first-child{margin-top:0}
+  .read .body p{margin-bottom:6px}
+  .read .body ul,.read .body ol{margin:2px 0 8px 18px}
+  .read .body li{margin-bottom:4px}
+  .read .body .key{background:#fdf3d8;padding:1px 4px;border-radius:3px}
+  .read .body code{background:#eee7d6;padding:1px 5px;border-radius:3px;font-size:12.5px}
+
+  .editor{display:flex;flex-direction:column}
+  .editor textarea{flex:1;min-height:340px;background:var(--code-bg);color:var(--code-ink);border:0;resize:vertical;padding:16px;font-family:"JetBrains Mono";font-size:12.5px;line-height:1.62;tab-size:2;outline:none}
+  .editor .bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#10160f;border-top:1px solid #2a352a}
+  .run{background:var(--amber);color:#fff;border:0;font-weight:700;padding:7px 16px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:"Noto Sans SC";transition:transform .1s,background .2s}
+  .run:hover{background:#a9520f}
+  .run:active{transform:translateY(1px)}
+  .reset{background:transparent;color:#8a9488;border:1px solid #2a352a;padding:7px 12px;border-radius:var(--radius);cursor:pointer;font-size:12.5px}
+  .hint{color:#6f7a6f;font-size:11px;font-family:"JetBrains Mono";margin-left:auto}
+  .out{background:#0c110b;color:#9fe6bf;font-family:"JetBrains Mono";font-size:12.5px;padding:0 16px;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;white-space:pre-wrap;border-top:1px solid #1c241b}
+  .out.show{max-height:280px;overflow:auto;padding:14px 16px}
+  .out .sys{color:#6f7a6f}
+
+  .qa h3{font-family:"Lora",serif;font-size:20px;margin-bottom:4px}
+  .qa .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+  details summary{cursor:pointer;padding:14px 18px;font-weight:500;font-size:14.5px;list-style:none;display:flex;align-items:flex-start;gap:12px}
+  details summary::-webkit-details-marker{display:none}
+  details summary .qn{font-family:"JetBrains Mono";color:var(--amber);font-size:13px;flex-shrink:0}
+  details summary .ar{margin-left:auto;color:var(--muted);transition:transform .2s}
+  details[open] summary .ar{transform:rotate(90deg)}
+  details .ans{padding:14px 18px 16px 46px;font-size:14px;color:#3c4640;border-top:1px solid var(--line)}
+  details .ans code{background:#eee7d6;padding:1px 5px;border-radius:3px;font-size:12.5px}
+
+  .navbtns{display:flex;justify-content:space-between;gap:12px;margin-top:28px;border-top:1px solid var(--line);padding-top:22px}
+  .navbtns button{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;cursor:pointer;text-align:left;font-family:"Noto Sans SC";transition:border-color .2s;max-width:46%}
+  .navbtns button:hover:not(:disabled){border-color:var(--jade)}
+  .navbtns button:disabled{opacity:.35;cursor:default}
+  .navbtns button .dir{font-size:11px;color:var(--muted);font-family:"JetBrains Mono"}
+  .navbtns button .t{font-size:14px;font-weight:500;color:var(--jade-deep)}
+  .navbtns button.next{text-align:right}
+  .markbtn{background:var(--jade);color:#fff;border:0;border-radius:var(--radius);padding:9px 16px;cursor:pointer;font-size:13px;font-weight:500;font-family:"Noto Sans SC";margin:22px 0 0;transition:background .2s}
+  .markbtn:hover{background:var(--jade-deep)}
+  .markbtn.is-done{background:#e7efe9;color:var(--jade);border:1px solid #cfe0d5}
+
+  footer{border-top:1px solid var(--line);margin-top:36px;padding:22px 0;color:var(--muted);font-size:12px;font-family:"JetBrains Mono"}
+
+  @media(max-width:920px){
+    .shell{grid-template-columns:1fr}
+    aside{position:static;height:auto;border-bottom:1px solid var(--line);margin-bottom:8px}
+    .split{grid-template-columns:1fr}
+  }
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="logo" href="#"><span class="mark">J</span><span>JavaPath <small>边读边练</small></span></a>
+    <span class="grow"></span>
+    <div class="progwrap">
+      <span id="progText">0 / 0</span>
+      <span class="progbar"><i id="progFill"></i></span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside>
+    <div class="map-title">知识地图 · 11 章</div>
+    <div id="toc"></div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">// 左边读懂原理，右边立刻验证</div>
+      <h1 id="heroH1">JavaPath<br>把每个知识点都<em>跑一遍</em>。</h1>
+      <p id="heroP">11 章 Java 后端核心——概念、带注释的可运行代码、高频面试题三者打通，从集合源码一路练到大厂面经。</p>
+      <div class="stats">
+        <div class="stat"><div class="n" id="sChaps">0</div><div class="l">章节</div></div>
+        <div class="stat"><div class="n" id="sUnits">0</div><div class="l">知识点</div></div>
+        <div class="stat"><div class="n" id="sQa">0</div><div class="l">面试题</div></div>
+      </div>
+    </section>
+
+    <article id="content"></article>
+
+    <div class="navbtns">
+      <button id="prevBtn" class="prev"><span class="dir">← 上一节</span><br><span class="t" id="prevT"></span></button>
+      <button id="nextBtn" class="next"><span class="dir">下一节 →</span><br><span class="t" id="nextT"></span></button>
+    </div>
+
+    <footer id="foot">JavaPath · 数据源自 C:\AI_Test\learn 的 11 份 PDF · 概念 + 代码 + 面经一体化 · 进度保存在本地浏览器</footer>
+  </main>
+</div>
+
+<!-- ============================================================
+     章节注册机制：每个 data/*.js 调用 window.registerChapter(章节对象) 自注册。
+     新增章节只需新建一个 data 文件并在下方加一行 <script>。
+     ============================================================ -->
+<script>
+  window.JAVAPATH_CHAPTERS = [];
+  window.registerChapter = function(c){ window.JAVAPATH_CHAPTERS.push(c); };
+</script>
+<script src="data/collections.js"></script>
+<script src="data/threads.js"></script>
+<script src="data/jvm.js"></script>
+<script src="data/mysql.js"></script>
+<script src="data/redis.js"></script>
+<script src="data/ssm.js"></script>
+<script src="data/mq.js"></script>
+<script src="data/microservice.js"></script>
+<script src="data/designpattern.js"></script>
+<script src="data/scenario.js"></script>
+<script src="data/interview.js"></script>
+<!-- 可选：解析脚本自动产出的章节（运行 parse_pdfs.py 后生成）。404 不影响。 -->
+<script src="../output/knowledge.js" onerror="void 0"></script>
+
+<script>
+/* ============================================================
+ * 站点逻辑：聚合所有已注册章节，渲染知识地图 + 知识点页 + 进度
+ * ============================================================ */
+
+// ---- 1. 汇总章节并按 order 排序 ----
+const CHAPTERS = (window.JAVAPATH_CHAPTERS || []).slice().sort((a,b)=>(a.order||99)-(b.order||99));
+
+// 若解析脚本产出了自动数据，且某章节尚无精修版，则补充进来（标记 auto）
+if (window.KNOWLEDGE_DATA && Array.isArray(window.KNOWLEDGE_DATA.units)) {
+  const have = new Set(CHAPTERS.map(c=>c.chapter));
+  const byChap = {};
+  window.KNOWLEDGE_DATA.units.forEach(u=>{
+    if (have.has(u.chapter)) return;                 // 已有精修版，跳过
+    (byChap[u.chapter]=byChap[u.chapter]||[]).push(u);
+  });
+  Object.keys(byChap).forEach(chap=>{
+    const us = byChap[chap];
+    CHAPTERS.push({
+      chapter:chap, module:us[0].module||"其他", order:90, auto:true,
+      groups:[chap],
+      units:us.map(u=>({
+        id:u.id, group:chap, title:u.title,
+        tags:(u.tags&&u.tags.length)?u.tags:["自动解析"],
+        concept:[["内容（自动解析自 PDF，建议人工校对）", escapeHtml(u.concept_md||"（暂无正文）").replace(/\n/g,"<br>")]],
+        code:(u.code_samples&&u.code_samples[0])?u.code_samples[0].code:"// 本知识点暂未提取到代码示例",
+        qa:(u.interview_qa||[]).map(q=>[q.q,q.a])
+      }))
+    });
+  });
+}
+
+// ---- 2. 状态 ----
+let chap = 0, cur = 0;
+let openModuleChaps = {};                 // 侧边手风琴展开状态
+const KEY = "javapath_done";
+let done = {};
+try { done = JSON.parse(localStorage.getItem(KEY)||"{}"); } catch(e){ done={}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(done)); }catch(e){} }
+
+function curChap(){ return CHAPTERS[chap]; }
+function units(){ return curChap().units; }
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ---- 3. 顶部统计 ----
+function renderStats(){
+  document.getElementById('sChaps').textContent = CHAPTERS.length;
+  document.getElementById('sUnits').textContent = CHAPTERS.reduce((a,c)=>a+c.units.length,0);
+  document.getElementById('sQa').textContent = CHAPTERS.reduce((a,c)=>a+c.units.reduce((x,u)=>x+u.qa.length,0),0);
+}
+
+// ---- 4. 侧边知识地图（按模块分组 -> 章节手风琴 -> 知识点）----
+function renderToc(){
+  const toc = document.getElementById('toc'); toc.innerHTML="";
+  // 按 module 归组
+  const modules = [];
+  CHAPTERS.forEach((c,ci)=>{
+    let m = modules.find(x=>x.name===c.module);
+    if(!m){ m={name:c.module, chaps:[]}; modules.push(m); }
+    m.chaps.push({c, ci});
+  });
+
+  modules.forEach(m=>{
+    const wrap = document.createElement('div'); wrap.className='module';
+    wrap.innerHTML = `<div class="mhead">${m.name}</div>`;
+    m.chaps.forEach(({c,ci})=>{
+      const isCur = ci===chap;
+      const open = openModuleChaps[ci] !== undefined ? openModuleChaps[ci] : isCur;
+      const doneN = c.units.filter(u=>done[u.id]).length;
+      const head = document.createElement('div');
+      head.className = 'chap'+(open?' open':'');
+      head.innerHTML = `<span class="ci">${String(c.order||'').padStart(2,'0')}</span>
+        <span>${c.chapter}${c.auto?' · 自动':''}</span>
+        <span class="cprog">${doneN}/${c.units.length}</span>
+        <span class="caret">▸</span>`;
+      head.onclick = ()=>{ openModuleChaps[ci] = !open; renderToc(); };
+      wrap.appendChild(head);
+
+      if(open){
+        c.groups.forEach(g=>{
+          const inG = c.units.filter(u=>u.group===g);
+          if(!inG.length) return;
+          const gd = document.createElement('div'); gd.className='grp';
+          const lis = inG.map(u=>{
+            const i = c.units.indexOf(u);
+            const active = (ci===chap && i===cur);
+            return `<li><a data-ci="${ci}" data-i="${i}" class="${active?'cur':''} ${done[u.id]?'done':''}">
+              <span class="chk">${done[u.id]?'✓':''}</span>${u.title}</a></li>`;
+          }).join('');
+          gd.innerHTML = `<h4>${g}</h4><ul>${lis}</ul>`;
+          wrap.appendChild(gd);
+        });
+      }
+    });
+    toc.appendChild(wrap);
+  });
+
+  toc.querySelectorAll('a[data-i]').forEach(a=>{
+    a.addEventListener('click', ()=>{
+      chap = +a.dataset.ci; cur = +a.dataset.i; renderContent(); window.scrollTo({top:0});
+    });
+  });
+}
+
+function updateProgress(){
+  const all = CHAPTERS.reduce((a,c)=>a+c.units.length,0);
+  const n = CHAPTERS.reduce((a,c)=>a+c.units.filter(u=>done[u.id]).length,0);
+  document.getElementById('progText').textContent = n+" / "+all;
+  document.getElementById('progFill').style.width = (all?n/all*100:0)+"%";
+}
+
+// ---- 5. 主内容 ----
+function langLabel(c){
+  const L = c.lang || (c.units[cur] && c.units[cur].lang) || "java";
+  return {java:"Java", sql:"SQL", redis:"Redis 命令"}[L] || "代码";
+}
+function renderContent(){
+  const c = curChap(), u = c.units[cur];
+  const concept = u.concept.map(([h,b])=>`<h5>${h}</h5><p>${b}</p>`).join('');
+  const tags = u.tags.map(t=>`<span class="tag ${t==='面试高频'?'hot':''}">${t}</span>`).join('');
+  const qa = u.qa.length
+    ? u.qa.map((q,i)=>`<details><summary><span class="qn">Q${i+1}</span><span>${q[0]}</span><span class="ar">▸</span></summary><div class="ans">${q[1]}</div></details>`).join('')
+    : `<p style="color:var(--muted);font-size:14px">本知识点暂无关联面试题。</p>`;
+  const autoNote = c.auto ? `<div class="raw-note">⚙ 本章节内容由 parse_pdfs.py 自动解析自 PDF，为粗粒度草稿，建议人工校对后再发布。</div>` : "";
+  const runnable = (c.lang||"java")==="java";
+
+  document.getElementById('content').innerHTML = `
+    <div class="crumb">${c.module} / ${c.chapter} / <b>${u.title}</b></div>
+    <h2 class="unit">${u.title}</h2>
+    <div class="unit-tags">${tags}</div>
+    ${autoNote}
+    <div class="split">
+      <div class="panel read"><div class="ph"><span class="ic"></span>概念 · 读</div><div class="body">${concept}</div></div>
+      <div class="panel editor"><div class="ph play"><span class="ic"></span>代码 · 练（${langLabel(c)}${runnable?' · 模拟运行':' · 仅展示'}）</div>
+        <textarea id="src" spellcheck="false">${escapeHtml(u.code)}</textarea>
+        <div class="bar">
+          ${runnable?'<button class="run" id="runBtn">▶ 运行</button>':''}
+          <button class="reset" id="resetBtn">重置</button>
+          <span class="hint">${runnable?'前端模拟，正式版接 Docker 沙箱':'SQL/命令示例，正式版接真实引擎'}</span>
+        </div>
+        <div class="out" id="out"></div>
+      </div>
+    </div>
+    <button class="markbtn ${done[u.id]?'is-done':''}" id="markBtn">${done[u.id]?'✓ 已学完':'标记为已学完'}</button>
+    <section class="qa" style="margin-top:26px"><h3>本知识点 · 高频面试题</h3>
+    <div class="sub">来自《大厂面经（Java 方向）》，与上方知识点关联。</div>${qa}</section>`;
+
+  const prev = c.units[cur-1], next = c.units[cur+1];
+  const pb=document.getElementById('prevBtn'), nb=document.getElementById('nextBtn');
+  pb.disabled=!prev; nb.disabled=!next;
+  document.getElementById('prevT').textContent = prev?prev.title:'';
+  document.getElementById('nextT').textContent = next?next.title:'';
+
+  if(runnable) bindRun(u);
+  else { const rb=document.getElementById('resetBtn'); const original=u.code;
+    rb.addEventListener('click', ()=>{ document.getElementById('src').value=original; }); }
+
+  document.getElementById('markBtn').addEventListener('click', ()=>{
+    done[u.id]=!done[u.id]; save(); renderToc(); updateProgress(); renderContent();
+  });
+  renderToc(); updateProgress();
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{ if(cur>0){cur--;renderContent();window.scrollTo({top:0});}});
+document.getElementById('nextBtn').addEventListener('click', ()=>{ if(cur<units().length-1){cur++;renderContent();window.scrollTo({top:0});}});
+
+/* ---- 轻量 Java 模拟运行器（仅演示，正式版接真实沙箱）---- */
+function bindRun(u){
+  const src=document.getElementById('src'), out=document.getElementById('out');
+  const original=u.code;
+  const rb=document.getElementById('runBtn');
+  if(rb) rb.addEventListener('click', ()=>{
+    out.classList.add('show');
+    out.innerHTML='<span class="sys">$ javac Demo.java && java Demo</span>\n';
+    const lines = simulate(src.value);
+    if(!lines.length){ out.innerHTML+='<span class="sys">（本示例侧重讲解，模拟器未捕获标准输出。正式版将由真实编译器运行。）</span>'; return; }
+    let i=0; const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    (function step(){ out.innerHTML+=lines[i]+'\n'; out.scrollTop=out.scrollHeight;
+      if(++i<lines.length) setTimeout(step, reduce?0:130);
+      else out.innerHTML+='<span class="sys">\nProcess finished · exit 0</span>'; })();
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ src.value=original; out.classList.remove('show'); out.innerHTML=''; });
+}
+function simulate(code){
+  const map={}; const lines=[];
+  let m; const putRe=/\.put\(\s*"([^"]*)"\s*,\s*([^)]+)\)/g;
+  while((m=putRe.exec(code))!==null){ map[m[1]]=m[2].trim(); }
+  const mergeRe=/\.merge\(\s*"([^"]*)"\s*,\s*(\d+)/g;
+  while((m=mergeRe.exec(code))!==null){ map[m[1]]=String((+(map[m[1]]||0))+ +m[2]); }
+  const printRe=/System\.out\.println\(([^;]*)\);/g;
+  while((m=printRe.exec(code))!==null){ lines.push(evalPrint(m[1], map)); }
+  return lines;
+}
+function evalPrint(expr, map){
+  return expr.split('+').map(p=>{
+    p=p.trim();
+    if(/^".*"$/.test(p)) return p.slice(1,-1);
+    let g=p.match(/\.get\("([^"]*)"\)/); if(g) return map[g[1]]!==undefined?map[g[1]]:'null';
+    let c=p.match(/\.containsKey\("([^"]*)"\)/); if(c) return map[c[1]]!==undefined?'true':'false';
+    if(/\.size\(\)/.test(p)) return String(Object.keys(map).length);
+    return p;
+  }).join('');
+}
+
+// ---- 启动 ----
+if(!CHAPTERS.length){
+  document.getElementById('content').innerHTML='<p style="color:var(--muted)">未加载到章节数据。请确认 data/*.js 是否存在。</p>';
+} else {
+  renderStats(); renderContent();
+}
+</script>
+</body>
+</html>

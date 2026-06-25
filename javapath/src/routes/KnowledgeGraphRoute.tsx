@@ -1,6 +1,6 @@
 import { Bookmark, GitBranch, MessageSquareQuote } from 'lucide-react';
 import { useState } from 'react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { Panel, Tag } from '../components/Primitives';
 import { SafeHtml } from '../components/SafeHtml';
 import { appData, moduleLookup, questionLookup } from '../data/appData';

@@ -55,12 +55,26 @@ export function AccuracyBars({ state }: { state: UserState }) {
 
 export function Heatmap({ checkins }: { checkins: string[] }) {
   const today = new Date();
+  const checkinSet = new Set(checkins);
+
+  // 基于最近连续打卡情况计算热力等级
   const cells = Array.from({ length: 42 }, (_, index) => {
     const date = new Date(today);
     date.setDate(today.getDate() - (41 - index));
     const key = date.toISOString().slice(0, 10);
-    const active = checkins.includes(key);
-    return { key, active, level: active ? ((index % 4) + 1) : 0 };
+    const active = checkinSet.has(key);
+    let level = 0;
+    if (active) {
+      // 计算该日附近连续打卡密度（前后各 2 天窗口内打卡数）
+      let streak = 0;
+      for (let offset = -2; offset <= 2; offset++) {
+        const nearby = new Date(date);
+        nearby.setDate(date.getDate() + offset);
+        if (checkinSet.has(nearby.toISOString().slice(0, 10))) streak++;
+      }
+      level = Math.min(4, streak);
+    }
+    return { key, active, level };
   });
 
   return (

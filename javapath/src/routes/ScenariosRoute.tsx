@@ -1,6 +1,6 @@
 import { Bookmark, CheckCircle2, Route } from 'lucide-react';
 import { useState } from 'react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { ArchitectureDiagram } from '../components/ArchitectureDiagram';
 import { Panel, Tag } from '../components/Primitives';
 import { appData, moduleLookup, questionLookup } from '../data/appData';

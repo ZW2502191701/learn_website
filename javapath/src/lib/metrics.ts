@@ -1,4 +1,4 @@
-import { appData, moduleLookup } from '../data/appData';
+import { appData, moduleLookup, pointsByModule } from '../data/appData';
 import type { ProgressStatus, StudyProgress, UserState } from '../types';
 
 export const statusLabel: Record<ProgressStatus, string> = {
@@ -22,7 +22,7 @@ export const getProgress = (state: UserState, knowledgePointId: string): StudyPr
 };
 
 export const masteryForModule = (state: UserState, moduleId: string) => {
-  const points = appData.knowledgePoints.filter((point) => point.moduleId === moduleId);
+  const points = pointsByModule.get(moduleId) ?? [];
   if (!points.length) return 0;
   const score = points.reduce((sum, point) => {
     const status = getProgress(state, point.id).status;
@@ -51,7 +51,7 @@ export const wrongCountForModule = (state: UserState, moduleId: string) =>
   state.wrongQuestions.filter((item) => item.moduleId === moduleId).length;
 
 export const correctRateForModule = (state: UserState, moduleId: string) => {
-  const points = appData.knowledgePoints.filter((point) => point.moduleId === moduleId);
+  const points = pointsByModule.get(moduleId) ?? [];
   const totals = points.reduce(
     (acc, point) => {
       const progress = getProgress(state, point.id);

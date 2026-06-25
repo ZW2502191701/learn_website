@@ -1,5 +1,5 @@
 import { ArrowRight, Brain, CalendarCheck2, Flame, Star } from 'lucide-react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { AccuracyBars, DonutChart, Heatmap, ModuleBars } from '../components/Charts';
 import { KpiCard, Panel, ProgressBar, Tag } from '../components/Primitives';
 import { appData, knowledgeLookup, moduleLookup } from '../data/appData';

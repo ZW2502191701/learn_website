@@ -1,10 +1,11 @@
 import { Bookmark, CheckCircle2, MessageCircle, RotateCcw, ShieldQuestion } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import type { RouteProps } from '../App';
+import { useEffect, useMemo, useState } from 'react';
+import type { QuestionCategory, RouteProps } from '../types';
 import { Panel, Tag } from '../components/Primitives';
 import { SafeHtml } from '../components/SafeHtml';
 import { appData, moduleLookup } from '../data/appData';
-import type { QuestionCategory } from '../types';
+import { useDebounce } from '../hooks/useDebounce';
+import { normalizeText } from '../lib/search';
 import { toggleFavorite, toggleWrongQuestion, upsertProgress } from '../lib/storage';
 
 const categories: Array<'全部' | QuestionCategory> = ['全部', '基础题', '源码题', '场景题', '八股题', '项目题', '系统设计题', 'HR面'];
@@ -17,13 +18,17 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
   const [mode, setMode] = useState<(typeof interviewModes)[number]>('大厂一面');
   const [activeId, setActiveId] = useState('');
   const [showAnswer, setShowAnswer] = useState(true);
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const debounce = useDebounce((value: string) => setDebouncedQuery(value), 200);
+
+  useEffect(() => { debounce(query); }, [query, debounce]);
 
   const questions = useMemo(() => {
     return appData.questions.filter((question) => {
       const categoryOk = category === '全部' || question.category === category;
       const moduleOk = moduleId === '全部' || question.moduleId === moduleId;
-      const q = query.trim();
-      const queryOk = !q || `${question.title} ${question.answer} ${question.points.join(' ')}`.includes(q);
+      const q = debouncedQuery.trim();
+      const queryOk = !q || normalizeText(`${question.title} ${question.answer} ${question.points.join(' ')}`).includes(normalizeText(q));
       const modeOk =
         mode === '大厂一面'
           ? question.category !== 'HR面'
@@ -32,7 +37,7 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
             : question.category === 'HR面' || question.category === '项目题';
       return categoryOk && moduleOk && queryOk && modeOk;
     });
-  }, [category, moduleId, query, mode]);
+  }, [category, moduleId, debouncedQuery, mode]);
 
   const active = appData.questions.find((question) => question.id === activeId) ?? questions[0];
   const isWrong = active ? state.wrongQuestions.some((item) => item.questionId === active.id) : false;
@@ -49,7 +54,7 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
               </button>
             ))}
           </div>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="按题目、答案搜索" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="按题目、答案搜索（大小写无关）" />
           <select value={moduleId} onChange={(event) => setModuleId(event.target.value)}>
             <option>全部</option>
             {appData.modules.map((module) => (

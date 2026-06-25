@@ -1,6 +1,6 @@
 import { CalendarCheck2, Clock3, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { Panel, ProgressBar, Tag } from '../components/Primitives';
 import { appData, knowledgeLookup, moduleLookup } from '../data/appData';
 import { masteryForModule, recommendedPoints } from '../lib/metrics';

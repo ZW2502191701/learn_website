@@ -12,7 +12,8 @@ import {
   X
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import type { RouteId } from '../App';
+import { useEffect } from 'react';
+import type { RouteId } from '../types';
 import { appData } from '../data/appData';
 import { daysUntil, overallMastery } from '../lib/metrics';
 import { backupState, exportState, importState, resetStateWithBackup } from '../lib/storage';
@@ -57,8 +58,26 @@ export function AppShell({
 }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const mastery = overallMastery(state);
   const days = daysUntil(state.targetDate);
+
+  // 全局键盘快捷键
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      // Ctrl+K / Cmd+K → 聚焦搜索
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      // Esc → 关闭菜单
+      if (event.key === 'Escape' && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [menuOpen]);
 
   const routeMap = useMemo(() => new Map(routes.map((item) => [item.id, item])), [routes]);
   const activeGroup = routeGroups.find((group) => group.ids.includes(route)) ?? routeGroups[0];
@@ -135,9 +154,10 @@ export function AppShell({
         <form className="global-search workspace-search" onSubmit={submitSearch}>
           <Search size={17} />
           <input
+            ref={searchInputRef}
             value={globalQuery}
             onChange={(event) => setGlobalQuery(event.target.value)}
-            placeholder="搜索知识点、面试题、场景题"
+            placeholder="搜索知识点、面试题、场景题  ⌘K"
           />
         </form>
 
@@ -247,6 +267,25 @@ export function AppShell({
       {menuOpen ? <button className="shell-scrim" type="button" aria-label="关闭页面菜单" onClick={() => setMenuOpen(false)} /> : null}
 
       <main className="content workspace-content">{children}</main>
+
+      {/* 移动端底部导航 */}
+      <nav className="mobile-bottom-nav" aria-label="移动端导航">
+        {primaryEntries.map((item) => {
+          const Icon = item.icon;
+          const isActive = item.id === route || (item.id === 'modules' && ['path', 'graph'].includes(route));
+          return (
+            <button
+              type="button"
+              key={item.id}
+              className={isActive ? 'active' : ''}
+              onClick={() => navigate(item.id)}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

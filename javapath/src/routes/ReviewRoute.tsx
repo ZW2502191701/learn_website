@@ -1,5 +1,5 @@
 import { Bookmark, RotateCcw, StickyNote } from 'lucide-react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { EmptyState, Panel, Tag } from '../components/Primitives';
 import { appData, knowledgeLookup, moduleLookup, questionLookup, scenarioLookup } from '../data/appData';
 import { updateWrongNote } from '../lib/storage';

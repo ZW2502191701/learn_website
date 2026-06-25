@@ -1,5 +1,5 @@
 import { ArrowRight, CheckCircle2, Link2 } from 'lucide-react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { Panel, ProgressBar, Tag } from '../components/Primitives';
 import { appData, moduleLookup } from '../data/appData';
 import { masteryForModule } from '../lib/metrics';

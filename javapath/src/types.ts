@@ -136,3 +136,21 @@ export interface PersistedUserState {
   exportedAt?: string;
   state: UserState;
 }
+
+export type RouteId =
+  | 'dashboard'
+  | 'path'
+  | 'modules'
+  | 'graph'
+  | 'interview'
+  | 'scenarios'
+  | 'plan'
+  | 'review'
+  | 'search';
+
+export interface RouteProps {
+  state: UserState;
+  setState: React.Dispatch<React.SetStateAction<UserState>>;
+  goTo: (route: RouteId, query?: string) => void;
+  globalQuery: string;
+}

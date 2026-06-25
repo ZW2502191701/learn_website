@@ -1818,8 +1818,18 @@ select,
 }
 
 .search-page-bar {
-  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-columns: minmax(0, 1fr) 220px auto;
   margin-bottom: 0;
+}
+
+.search-count {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 13px;
+  min-height: 38px;
+  padding: 0 8px;
 }
 
 .search-results {
@@ -3010,5 +3020,96 @@ mark {
 
   .reader-meta {
     gap: 6px;
+  }
+}
+
+/* ── Mobile bottom tab bar ── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mobile-bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 56px;
+}
+
+.mobile-bottom-nav button.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .workspace-content {
+    padding-bottom: 72px;
+  }
+
+  .page-grid,
+  .dashboard-grid,
+  .plan-grid,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-grid .span-4,
+  .page-grid .span-5,
+  .page-grid .span-6,
+  .page-grid .span-7,
+  .plan-grid .span-6,
+  .plan-grid .span-12,
+  .review-grid .span-5,
+  .review-grid .span-7 {
+    grid-column: 1 / -1;
+  }
+
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .interview-layout,
+  .scenario-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .question-list-panel,
+  .scenario-list {
+    max-height: 35vh;
+    overflow-y: auto;
+  }
+
+  .dashboard-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .graph-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-canvas-panel {
+    overflow-x: auto;
   }
 }

@@ -469,3 +469,14 @@ export const chapterLookup = new Map(appData.chapters.map((chapter) => [chapter.
 export const knowledgeLookup = new Map(appData.knowledgePoints.map((point) => [point.id, point]));
 export const questionLookup = new Map(appData.questions.map((question) => [question.id, question]));
 export const scenarioLookup = new Map(appData.scenarios.map((scenario) => [scenario.id, scenario]));
+
+/** moduleId → KnowledgePoint[] 预建索引，避免运行时 filter */
+export const pointsByModule = new Map<string, typeof appData.knowledgePoints>();
+for (const point of appData.knowledgePoints) {
+  const list = pointsByModule.get(point.moduleId);
+  if (list) {
+    list.push(point);
+  } else {
+    pointsByModule.set(point.moduleId, [point]);
+  }
+}

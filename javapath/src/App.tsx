@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
   BookMarked,
@@ -12,28 +12,21 @@ import {
   Sparkles
 } from 'lucide-react';
 import { AppShell } from './components/AppShell';
-import { DashboardRoute } from './routes/DashboardRoute';
-import { LearningPathRoute } from './routes/LearningPathRoute';
-import { ModulesRoute } from './routes/ModulesRoute';
-import { KnowledgeGraphRoute } from './routes/KnowledgeGraphRoute';
-import { InterviewRoute } from './routes/InterviewRoute';
-import { ScenariosRoute } from './routes/ScenariosRoute';
-import { PlanRoute } from './routes/PlanRoute';
-import { ReviewRoute } from './routes/ReviewRoute';
-import { SearchRoute } from './routes/SearchRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { parseHash, toHash } from './lib/hashRouter';
 import { loadState, saveState } from './lib/storage';
-import type { UserState } from './types';
+import type { RouteId, RouteProps, UserState } from './types';
 
-export type RouteId =
-  | 'dashboard'
-  | 'path'
-  | 'modules'
-  | 'graph'
-  | 'interview'
-  | 'scenarios'
-  | 'plan'
-  | 'review'
-  | 'search';
+// 路由懒加载
+const DashboardRoute = lazy(() => import('./routes/DashboardRoute').then((m) => ({ default: m.DashboardRoute })));
+const LearningPathRoute = lazy(() => import('./routes/LearningPathRoute').then((m) => ({ default: m.LearningPathRoute })));
+const ModulesRoute = lazy(() => import('./routes/ModulesRoute').then((m) => ({ default: m.ModulesRoute })));
+const KnowledgeGraphRoute = lazy(() => import('./routes/KnowledgeGraphRoute').then((m) => ({ default: m.KnowledgeGraphRoute })));
+const InterviewRoute = lazy(() => import('./routes/InterviewRoute').then((m) => ({ default: m.InterviewRoute })));
+const ScenariosRoute = lazy(() => import('./routes/ScenariosRoute').then((m) => ({ default: m.ScenariosRoute })));
+const PlanRoute = lazy(() => import('./routes/PlanRoute').then((m) => ({ default: m.PlanRoute })));
+const ReviewRoute = lazy(() => import('./routes/ReviewRoute').then((m) => ({ default: m.ReviewRoute })));
+const SearchRoute = lazy(() => import('./routes/SearchRoute').then((m) => ({ default: m.SearchRoute })));
 
 export const routes = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,12 +40,7 @@ export const routes = [
   { id: 'search', label: '全文搜索', icon: Search }
 ] satisfies Array<{ id: RouteId; label: string; icon: typeof Sparkles }>;
 
-export interface RouteProps {
-  state: UserState;
-  setState: React.Dispatch<React.SetStateAction<UserState>>;
-  goTo: (route: RouteId, query?: string) => void;
-  globalQuery: string;
-}
+const VALID_ROUTES = routes.map((item) => item.id) as RouteId[];
 
 const routeTitles: Record<RouteId, string> = {
   dashboard: 'Dashboard',
@@ -66,24 +54,68 @@ const routeTitles: Record<RouteId, string> = {
   search: '全文搜索'
 };
 
+function RouteLoading() {
+  return (
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '40vh', color: 'var(--muted)' }}>
+      <span>加载中…</span>
+    </div>
+  );
+}
+
 export default function App() {
-  const [route, setRoute] = useState<RouteId>('dashboard');
-  const [globalQuery, setGlobalQuery] = useState('');
+  const initialHash = parseHash(location.hash, VALID_ROUTES);
+  const [route, setRoute] = useState<RouteId>(initialHash.route);
+  const [globalQuery, setGlobalQuery] = useState(initialHash.query);
   const [state, setState] = useState<UserState>(() => loadState());
 
+  // 防止 goTo 推入的 hash 被 popstate 监听器重复处理
+  const skipSyncRef = useRef(false);
+
+  // 浏览器前进/后退：从 URL hash 恢复路由状态
   useEffect(() => {
-    saveState(state);
+    const handlePopstate = () => {
+      const parsed = parseHash(location.hash, VALID_ROUTES);
+      skipSyncRef.current = true;
+      setRoute(parsed.route);
+      setGlobalQuery(parsed.query);
+    };
+    window.addEventListener('popstate', handlePopstate);
+    return () => window.removeEventListener('popstate', handlePopstate);
+  }, []);
+
+  // 存储防抖：500ms 内无新变更才写入 localStorage
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
     document.documentElement.dataset.theme = state.theme;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => saveState(state), 500);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
   }, [state]);
 
-  const goTo = (nextRoute: RouteId, query?: string) => {
+  // 路由变化：同步 URL hash 和页面标题
+  const firstRenderRef = useRef(true);
+  useEffect(() => {
+    if (skipSyncRef.current) {
+      skipSyncRef.current = false;
+    } else if (firstRenderRef.current) {
+      history.replaceState(null, '', toHash(route, globalQuery || undefined));
+    } else {
+      history.pushState(null, '', toHash(route, globalQuery || undefined));
+    }
+    firstRenderRef.current = false;
+    document.title = `${routeTitles[route]} | JavaPath`;
+  }, [route, globalQuery]);
+
+  const goTo = useCallback((nextRoute: RouteId, query?: string) => {
     setRoute(nextRoute);
     if (query !== undefined) setGlobalQuery(query);
-  };
+  }, []);
 
   const routeProps = useMemo<RouteProps>(
     () => ({ state, setState, goTo, globalQuery }),
-    [state, globalQuery]
+    [state, globalQuery, goTo]
   );
 
   const content = {
@@ -109,7 +141,11 @@ export default function App() {
       setGlobalQuery={setGlobalQuery}
       goTo={goTo}
     >
-      {content}
+      <ErrorBoundary key={route}>
+        <Suspense fallback={<RouteLoading />}>
+          {content}
+        </Suspense>
+      </ErrorBoundary>
     </AppShell>
   );
 }

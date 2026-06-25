@@ -1,6 +1,6 @@
 import { ArrowRight, Bookmark, ChevronDown, Clock3, FileText, ListChecks, Search, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import type { RouteProps } from '../App';
+import type { RouteProps } from '../types';
 import { ProgressBar, StatusSelect, Tag } from '../components/Primitives';
 import { SafeHtml } from '../components/SafeHtml';
 import { appData, chapterLookup, moduleLookup } from '../data/appData';

@@ -1,8 +1,10 @@
 import {
   CalendarClock,
-  ChevronRight,
+  BookOpen,
+  Code2,
   Menu,
   Moon,
+  RotateCcw,
   Search,
   Sun,
   Target,
@@ -40,6 +42,17 @@ export function AppShell({
   const [open, setOpen] = useState(false);
   const mastery = overallMastery(state);
   const days = daysUntil(state.targetDate);
+  const routeMap = new Map(routes.map((item) => [item.id, item]));
+  const workspaces = [
+    { id: 'learn', label: '学习', hint: '路径 / 模块 / 图谱', icon: BookOpen, primary: 'modules' as RouteId, routeIds: ['dashboard', 'path', 'modules', 'graph'] as RouteId[] },
+    { id: 'practice', label: '练习', hint: '面试 / 场景', icon: Code2, primary: 'interview' as RouteId, routeIds: ['interview', 'scenarios'] as RouteId[] },
+    { id: 'review', label: '复盘', hint: '计划 / 错题', icon: RotateCcw, primary: 'plan' as RouteId, routeIds: ['plan', 'review'] as RouteId[] },
+    { id: 'search', label: '搜索', hint: '全文检索', icon: Search, primary: 'search' as RouteId, routeIds: ['search'] as RouteId[] }
+  ];
+  const activeWorkspace = workspaces.find((item) => item.routeIds.includes(route)) ?? workspaces[0];
+  const contextRoutes = activeWorkspace.routeIds
+    .map((id) => routeMap.get(id))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -50,48 +63,41 @@ export function AppShell({
   return (
     <div className="app-shell">
       <aside className={`sidebar ${open ? 'is-open' : ''}`}>
-        <div className="brand">
+        <div className="rail-brand">
           <div className="brand-mark">J</div>
-          <div>
-            <strong>Java 后端进阶学习平台</strong>
-            <span>PDF-driven interview lab</span>
-          </div>
           <button className="icon-button mobile-close" type="button" onClick={() => setOpen(false)} aria-label="关闭导航">
             <X size={18} />
           </button>
         </div>
 
-        <nav className="side-nav" aria-label="主导航">
-          {routes.map((item) => {
+        <nav className="workspace-nav" aria-label="主工作区">
+          {workspaces.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 type="button"
                 key={item.id}
-                className={`side-nav-item ${route === item.id ? 'active' : ''}`}
+                className={`workspace-button ${activeWorkspace.id === item.id ? 'active' : ''}`}
                 onClick={() => {
-                  goTo(item.id);
+                  goTo(item.primary);
                   setOpen(false);
                 }}
+                title={item.hint}
               >
-                <Icon size={17} />
+                <Icon size={24} />
                 <span>{item.label}</span>
-                {route === item.id ? <ChevronRight size={15} /> : null}
               </button>
             );
           })}
         </nav>
 
-        <div className="sidebar-plan">
-          <div className="tiny-label">Target Plan</div>
-          <div className="sidebar-plan-main">
-            <CalendarClock size={16} />
-            <span>面试倒计时 {days} 天</span>
+        <div className="rail-plan" title={`面试倒计时 ${days} 天，整体掌握度 ${mastery}%`}>
+          <CalendarClock size={18} />
+          <strong>{days}</strong>
+          <span>天</span>
+          <div className="rail-meter">
+            <i style={{ height: `${mastery}%` }} />
           </div>
-          <div className="mini-progress">
-            <span style={{ width: `${mastery}%` }} />
-          </div>
-          <small>整体掌握度 {mastery}% · {appData.knowledgePoints.length} 个知识点</small>
         </div>
       </aside>
 
@@ -101,9 +107,26 @@ export function AppShell({
             <Menu size={20} />
           </button>
           <div className="title-block">
-            <span>JavaPath</span>
+            <span>JavaPath · {activeWorkspace.label}</span>
             <h1>{title}</h1>
           </div>
+
+          <nav className="context-tabs" aria-label="当前工作区导航">
+            {contextRoutes.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  type="button"
+                  key={item.id}
+                  className={route === item.id ? 'active' : ''}
+                  onClick={() => goTo(item.id)}
+                >
+                  <Icon size={15} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
 
           <form className="global-search" onSubmit={submitSearch}>
             <Search size={17} />

@@ -21,7 +21,7 @@ export const makeDefaultState = (): UserState => ({
   notes: {},
   checkins: [dateKey(-6), dateKey(-5), dateKey(-3), dateKey(-2), dateKey(0)],
   targetDate: defaultTargetDate(),
-  theme: 'light'
+  theme: 'dark'
 });
 
 export const loadState = (): UserState => {

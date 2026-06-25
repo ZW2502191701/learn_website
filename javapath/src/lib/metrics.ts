@@ -1,5 +1,5 @@
-import { appData } from '../data/appData';
-import type { Module, ProgressStatus, StudyProgress, UserState } from '../types';
+import { appData, moduleLookup } from '../data/appData';
+import type { ProgressStatus, StudyProgress, UserState } from '../types';
 
 export const statusLabel: Record<ProgressStatus, string> = {
   'not-started': '未开始',
@@ -35,9 +35,9 @@ export const masteryForModule = (state: UserState, moduleId: string) => {
 };
 
 export const overallMastery = (state: UserState) => {
-  if (!appData.knowledgePoints.length) return 0;
+  if (!appData.knowledgePoints.length || !appData.modules.length) return 0;
   const total = appData.modules.reduce((sum, module) => sum + masteryForModule(state, module.id), 0);
-  return Math.round(total / appData.modules.length);
+  return Number.isFinite(total) ? Math.round(total / appData.modules.length) : 0;
 };
 
 export const weakModules = (state: UserState) => {
@@ -64,8 +64,9 @@ export const correctRateForModule = (state: UserState, moduleId: string) => {
 };
 
 export const recommendedPoints = (state: UserState, limit = 6) => {
-  const scored = appData.knowledgePoints.map((point) => {
-    const module = appData.modules.find((item) => item.id === point.moduleId) as Module;
+  const scored = appData.knowledgePoints.flatMap((point) => {
+    const module = moduleLookup.get(point.moduleId);
+    if (!module) return [];
     const progress = getProgress(state, point.id);
     const statusPenalty = progress.status === 'not-started' ? 30 : progress.status === 'review' ? 45 : progress.status === 'learning' ? 20 : 0;
     const wrongBoost = state.wrongQuestions.some((wrong) => wrong.questionId.startsWith(point.id)) ? 28 : 0;

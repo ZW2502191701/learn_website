@@ -41,16 +41,19 @@ http://127.0.0.1:5173/
 npm run build
 ```
 
-视觉/交互冒烟验证：
+视觉/交互冒烟验证需要先保持开发服务器运行，然后在另一个终端执行：
 
 ```bash
-node tools/visual-smoke.mjs
+npm run smoke:visual
 ```
 
-该脚本会生成：
+该脚本默认访问 `http://127.0.0.1:5173/`，截图会写入系统临时目录；如需指定地址或输出目录，可设置 `JAVAPATH_SMOKE_URL`、`JAVAPATH_SMOKE_OUT`。
 
-- `dashboard-desktop.png`
-- `dashboard-mobile.png`
+数据完整性校验：
+
+```bash
+npm run validate:data
+```
 
 ## 数据来源与扩展
 
@@ -60,7 +63,7 @@ node tools/visual-smoke.mjs
 npm run convert:data
 ```
 
-把旧数据转换为 `src/data/legacyChapters.ts`，再由 `src/data/appData.ts` 归一化为：
+读取 `web/data/*.js` 并生成已提交到仓库的 `src/data/legacyChapters.ts`。当 `web/data/*.js` 有内容调整时，应重新运行转换命令并一并提交生成结果。运行时再由 `src/data/appData.ts` 归一化为：
 
 - `Module`
 - `Chapter`
@@ -72,4 +75,4 @@ npm run convert:data
 - `Favorite`
 - `StudyPlan`
 
-后续接入 PDF 解析结果时，可以复用 `scripts/parse_pdfs.py` 输出 JSON，再把解析结果映射到同一套 TypeScript 数据模型。若要后端化，建议让 Spring Boot 暴露这些模型对应的 API，并将学习进度、错题、收藏、计划存入 MySQL/Redis。
+后续接入 PDF 解析结果时，可以复用 `scripts/parse_pdfs.py`。该脚本会生成 `knowledge.json`、`summary.json`、`knowledge.js`、逐 PDF Markdown 和图片 assets；这些产物应先作为 draft/校对输入，再映射到同一套 TypeScript 数据模型，不应无审查覆盖 curated 数据。若要后端化，建议让 Spring Boot 暴露这些模型对应的 API，并将学习进度、错题、收藏、计划存入 MySQL/Redis。

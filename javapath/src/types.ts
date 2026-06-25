@@ -130,3 +130,9 @@ export interface UserState {
   targetDate: string;
   theme: 'light' | 'dark';
 }
+
+export interface PersistedUserState {
+  version: 1;
+  exportedAt?: string;
+  state: UserState;
+}

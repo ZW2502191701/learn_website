@@ -1,9 +1,11 @@
-import { ArrowRight, Brain, CalendarCheck2, Flame, Star } from 'lucide-react';
+import { ArrowRight, Brain, CalendarCheck2, Flame, RotateCcw, Star, Zap } from 'lucide-react';
+import { useMemo } from 'react';
 import type { RouteProps } from '../types';
 import { AccuracyBars, DonutChart, Heatmap, ModuleBars } from '../components/Charts';
 import { KpiCard, Panel, ProgressBar, Tag } from '../components/Primitives';
 import { appData, knowledgeLookup, moduleLookup } from '../data/appData';
 import { daysUntil, overallMastery, recentStudy, recommendedPoints, weakModules } from '../lib/metrics';
+import { buildTodayReviewQueue } from '../lib/reviewScheduler';
 import { toggleTodayCheckin, upsertProgress } from '../lib/storage';
 
 export function DashboardRoute({ state, setState, goTo }: RouteProps) {
@@ -14,6 +16,7 @@ export function DashboardRoute({ state, setState, goTo }: RouteProps) {
   const days = daysUntil(state.targetDate);
   const totalMastered = Object.values(state.progress).filter((item) => item.status === 'mastered').length;
   const todayChecked = state.checkins.includes(new Date().toISOString().slice(0, 10));
+  const todayReview = useMemo(() => buildTodayReviewQueue(state, 3), [state]);
 
   return (
     <div className="page-grid dashboard-grid">
@@ -32,6 +35,20 @@ export function DashboardRoute({ state, setState, goTo }: RouteProps) {
           </button>
         </div>
       </section>
+
+      {todayReview.length > 0 && (
+        <section className="dashboard-review-banner">
+          <Zap size={16} />
+          <div>
+            <strong>今日有 {todayReview.length} 项待复盘</strong>
+            <span>{todayReview.map((r) => r.title).join('、')}</span>
+          </div>
+          <button type="button" className="ghost-btn" onClick={() => goTo('review')}>
+            <RotateCcw size={14} />
+            去复盘
+          </button>
+        </section>
+      )}
 
       <div className="kpi-row">
         <KpiCard label="整体进度" value={`${mastery}%`} hint={`${totalMastered}/${appData.knowledgePoints.length} 已掌握`} tone="emerald" />

@@ -1,9 +1,10 @@
-import { CalendarCheck2, Clock3, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarCheck2, Clock3, RotateCcw, Zap } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import type { RouteProps } from '../types';
 import { Panel, ProgressBar, Tag } from '../components/Primitives';
 import { appData, knowledgeLookup, moduleLookup } from '../data/appData';
 import { masteryForModule, recommendedPoints } from '../lib/metrics';
+import { buildTodayReviewQueue } from '../lib/reviewScheduler';
 import { toggleTodayCheckin, upsertProgress } from '../lib/storage';
 
 const planDays = [7, 14, 30, 60] as const;
@@ -14,6 +15,7 @@ export function PlanRoute({ state, setState, goTo }: RouteProps) {
   const todayIndex = new Date().getDate() % plan.dailyTasks.length;
   const todayTask = plan.dailyTasks[todayIndex];
   const recommended = recommendedPoints(state, 4);
+  const todayReview = useMemo(() => buildTodayReviewQueue(state, 4), [state]);
 
   return (
     <div className="route-stack">
@@ -83,6 +85,27 @@ export function PlanRoute({ state, setState, goTo }: RouteProps) {
             ))}
           </div>
         </Panel>
+
+        {todayReview.length > 0 && (
+          <Panel title="今日复习队列" className="span-6">
+            <div className="task-list">
+              {todayReview.map((item) => (
+                <button
+                  type="button"
+                  className="task-row"
+                  key={`${item.type}-${item.id}`}
+                  onClick={() => goTo(item.route, item.title)}
+                >
+                  <Zap size={15} />
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{item.moduleTitle} · {item.reason}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Panel>
+        )}
 
         <Panel title="模块安排" className="span-12">
           <div className="plan-table">

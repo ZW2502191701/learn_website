@@ -1794,6 +1794,141 @@ select,
   line-height: 1.6;
 }
 
+.review-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-priority-score {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.review-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.review-reasons .tag {
+  font-size: 11px;
+  min-height: 22px;
+  padding: 0 7px;
+}
+
+.dashboard-review-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--amber) 6%, var(--surface));
+  color: var(--text);
+}
+
+.dashboard-review-banner > svg {
+  flex-shrink: 0;
+  color: var(--amber);
+}
+
+.dashboard-review-banner div {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-review-banner strong {
+  display: block;
+  font-size: 14px;
+}
+
+.dashboard-review-banner span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.today-review-queue {
+  display: grid;
+  gap: 10px;
+}
+
+.today-review-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.today-review-header > svg {
+  flex-shrink: 0;
+  color: var(--amber);
+}
+
+.today-review-list {
+  display: grid;
+  gap: 6px;
+}
+
+.today-review-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.today-review-item:hover {
+  border-color: var(--accent);
+}
+
+.today-review-item span {
+  flex: 1;
+  min-width: 0;
+}
+
+.today-review-item strong {
+  display: block;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.today-review-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.today-review-item > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.today-review-item .tag {
+  flex-shrink: 0;
+  font-size: 11px;
+  min-height: 22px;
+  padding: 0 7px;
+}
+
 .empty-state {
   text-align: center;
   padding: 42px 20px;
@@ -3081,7 +3216,8 @@ mark {
   .plan-grid .span-6,
   .plan-grid .span-12,
   .review-grid .span-5,
-  .review-grid .span-7 {
+  .review-grid .span-7,
+  .review-grid .span-12 {
     grid-column: 1 / -1;
   }
 

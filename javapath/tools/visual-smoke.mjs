@@ -41,7 +41,7 @@ await page.locator('button:has-text("隐藏答案")').click();
 checks.mockBlank = await page.locator('text=模拟面试模式').count();
 
 await navigate('全文搜索');
-await page.locator('input[placeholder="全文搜索知识点、面试题、场景题"]').fill('HashMap');
+await page.locator('input[placeholder^="全文搜索知识点"]').fill('HashMap');
 await page.waitForTimeout(300);
 checks.searchResults = await page.locator('.search-results button').count();
 
@@ -53,8 +53,8 @@ await navigate('面试训练');
 checks.interviewHash = (await page.evaluate(() => location.hash)).includes('interview');
 
 await navigate('全文搜索');
-await page.locator('input[placeholder="全文搜索知识点、面试题、场景题"]').fill('HashMap');
-await page.locator('input[placeholder="全文搜索知识点、面试题、场景题"]').press('Enter');
+await page.locator('input[placeholder^="全文搜索知识点"]').fill('HashMap');
+await page.locator('input[placeholder^="全文搜索知识点"]').press('Enter');
 await page.waitForTimeout(300);
 checks.searchHash = (await page.evaluate(() => location.hash)).includes('search');
 

@@ -1,4 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ToastContext, useToastState } from './hooks/useToast';
+import { ToastStack } from './components/Toast';
 import {
   BarChart3,
   BookMarked,
@@ -63,7 +65,7 @@ function RouteLoading() {
   );
 }
 
-export default function App() {
+function AppInner() {
   const initialHash = parseHash(location.hash, VALID_ROUTES);
   const [route, setRoute] = useState<RouteId>(initialHash.route);
   const [globalQuery, setGlobalQuery] = useState(initialHash.query);
@@ -140,11 +142,23 @@ export default function App() {
       goTo={goTo}
       syncStatus={syncStatus}
     >
-      <ErrorBoundary key={route}>
-        <Suspense fallback={<RouteLoading />}>
-          {content}
-        </Suspense>
-      </ErrorBoundary>
+      <div key={route} className="route-animate">
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoading />}>
+            {content}
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </AppShell>
+  );
+}
+
+export default function App() {
+  const toastState = useToastState();
+  return (
+    <ToastContext.Provider value={toastState}>
+      <AppInner />
+      <ToastStack />
+    </ToastContext.Provider>
   );
 }

@@ -1,4 +1,5 @@
 /* Generated from web/data/*.js by tools/convert-legacy-data.mjs. */
+/* Generated at: 2026-06-26T00:43:01.680Z */
 import type { LegacyChapter } from './legacyTypes';
 
 export const legacyChapters = [
@@ -458,7 +459,7 @@ export const legacyChapters = [
           ],
           [
             "六种状态",
-            "NEW、RUNNABLE、BLOCKED、WAITING、TIMED_WAITING、TERMINATED。注意 Java 把“就绪”和“运行中”合并为 RUNNABLE。"
+            "NEW、RUNNABLE、BLOCKED、WAITING、TIMED_WAITING、TERMINATED。注意 Java 把「就绪」和「运行中」合并为 RUNNABLE。"
           ]
         ],
         "code": "public class Demo {\n    public static void main(String[] args) throws InterruptedException {\n        // 推荐方式：实现 Runnable，把\"任务\"和\"线程\"解耦\n        Runnable task = () -> {\n            // 这段代码运行在新线程里\n            System.out.println(\"子线程: \" + Thread.currentThread().getName());\n        };\n\n        Thread t = new Thread(task, \"worker-1\");\n        t.start();   // 正确：JVM 新建线程异步执行 run\n        // 注意：若写成 t.run() 则是在 main 线程同步执行，不会开新线程\n\n        t.join();    // 等待子线程结束后再继续（保证输出顺序）\n        System.out.println(\"主线程: \" + Thread.currentThread().getName());\n    }\n}",
@@ -567,7 +568,7 @@ export const legacyChapters = [
           ],
           [
             "公平 vs 非公平",
-            "非公平锁（默认）允许“插队”抢锁，吞吐更高；公平锁严格按队列顺序，避免饥饿但开销大。"
+            "非公平锁（默认）允许「插队」抢锁，吞吐更高；公平锁严格按队列顺序，避免饥饿但开销大。"
           ]
         ],
         "code": "import java.util.concurrent.locks.ReentrantLock;\n\npublic class Demo {\n    static int count = 0;\n    // ReentrantLock 底层基于 AQS，true 表示公平锁\n    static final ReentrantLock lock = new ReentrantLock();\n\n    public static void main(String[] args) throws InterruptedException {\n        Runnable task = () -> {\n            for (int i = 0; i < 1000; i++) {\n                lock.lock();        // 获取锁，底层 CAS 修改 AQS 的 state\n                try {\n                    count++;        // 临界区\n                } finally {\n                    lock.unlock();  // 必须在 finally 释放，否则异常会导致死锁\n                }\n            }\n        };\n        Thread t1 = new Thread(task), t2 = new Thread(task);\n        t1.start(); t2.start(); t1.join(); t2.join();\n        System.out.println(\"count = \" + count); // 2000\n    }\n}",
@@ -879,7 +880,7 @@ export const legacyChapters = [
           ],
           [
             "覆盖索引",
-            "查询的列都在索引里，无需回表，性能更好。这也是“不要 SELECT *”的原因之一。"
+            "查询的列都在索引里，无需回表，性能更好。这也是「不要 SELECT *」的原因之一。"
           ]
         ],
         "code": "-- 创建联合索引（遵循最左前缀原则）\nCREATE INDEX idx_name_age ON user(name, age);\n\n-- 覆盖索引：要查的 name、age 都在索引中，无需回表\nEXPLAIN SELECT name, age FROM user WHERE name = 'Tom';\n\n-- 会回表：select * 需要拿到完整行，二级索引 -> 主键 -> 聚簇索引\nEXPLAIN SELECT * FROM user WHERE name = 'Tom';",
@@ -1481,7 +1482,7 @@ export const legacyChapters = [
           ],
           [
             "关键",
-            "不要试图让 MQ 不重复，而是让消费者“消费多次结果一致”。"
+            "不要试图让 MQ 不重复，而是让消费者「消费多次结果一致」。"
           ]
         ],
         "code": "// 用 Redis 做幂等：每条消息有唯一 msgId，处理前先占位\npublic void consume(String msgId, Order order) {\n    // setIfAbsent: 不存在才设置成功，返回 true 表示是第一次消费\n    Boolean first = redis.opsForValue()\n        .setIfAbsent(\"msg:\" + msgId, \"1\", Duration.ofHours(24));\n\n    if (Boolean.FALSE.equals(first)) {\n        System.out.println(\"重复消息，已处理过，直接跳过\");\n        return;\n    }\n    process(order);   // 真正的业务处理\n}\nprivate void process(Order o) {}",
@@ -2006,7 +2007,7 @@ export const legacyChapters = [
           ],
           [
             "接口 vs 抽象类",
-            "抽象类是“是不是”（单继承、可有状态和构造）；接口是“能不能”（多实现、JDK8 后可有默认方法）。"
+            "抽象类是「是不是」（单继承、可有状态和构造）；接口是「能不能」（多实现、JDK8 后可有默认方法）。"
           ]
         ],
         "code": "// 面试常考：String 不可变 + 常量池\npublic class Demo {\n    public static void main(String[] args) {\n        String a = \"hi\";              // 进入字符串常量池\n        String b = \"hi\";              // 复用常量池里的同一对象\n        String c = new String(\"hi\");  // 在堆中新建对象\n\n        System.out.println(a == b);          // true：同一常量池对象\n        System.out.println(a == c);          // false：c 是堆中新对象\n        System.out.println(a.equals(c));     // true：内容相同\n    }\n}",

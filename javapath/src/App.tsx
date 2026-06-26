@@ -14,7 +14,8 @@ import {
 import { AppShell } from './components/AppShell';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { parseHash, toHash } from './lib/hashRouter';
-import { loadState, saveState } from './lib/storage';
+import { loadState } from './lib/storage';
+import { useStorageSync } from './hooks/useStorageSync';
 import type { RouteId, RouteProps, UserState } from './types';
 
 // 路由懒加载
@@ -68,6 +69,9 @@ export default function App() {
   const [globalQuery, setGlobalQuery] = useState(initialHash.query);
   const [state, setState] = useState<UserState>(() => loadState());
 
+  // 同步 hook：本地持久化 + 远程适配器
+  const { syncStatus } = useStorageSync(state, setState);
+
   // 防止 goTo 推入的 hash 被 popstate 监听器重复处理
   const skipSyncRef = useRef(false);
 
@@ -83,16 +87,10 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopstate);
   }, []);
 
-  // 存储防抖：500ms 内无新变更才写入 localStorage
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 主题同步
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme;
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => saveState(state), 500);
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, [state]);
+  }, [state.theme]);
 
   // 路由变化：同步 URL hash 和页面标题
   const firstRenderRef = useRef(true);
@@ -140,6 +138,7 @@ export default function App() {
       globalQuery={globalQuery}
       setGlobalQuery={setGlobalQuery}
       goTo={goTo}
+      syncStatus={syncStatus}
     >
       <ErrorBoundary key={route}>
         <Suspense fallback={<RouteLoading />}>

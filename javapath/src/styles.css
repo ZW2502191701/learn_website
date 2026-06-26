@@ -1589,6 +1589,140 @@ select,
   stroke: var(--accent);
 }
 
+/* 节点状态着色 */
+.graph-node.node-not-started rect { stroke: var(--line-strong); }
+.graph-node.node-learning rect { stroke: var(--blue); fill: color-mix(in srgb, var(--blue) 8%, var(--surface)); }
+.graph-node.node-mastered rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.graph-node.node-review rect { stroke: var(--amber); fill: color-mix(in srgb, var(--amber) 10%, var(--surface)); }
+.graph-node.node-wrong rect { stroke: var(--danger); fill: color-mix(in srgb, var(--danger) 8%, var(--surface)); }
+.graph-node.node-scenario rect { stroke: var(--blue); stroke-dasharray: 4 2; }
+
+.graph-node.selected.node-not-started rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.graph-node.selected.node-learning rect { stroke: var(--blue); fill: color-mix(in srgb, var(--blue) 15%, var(--surface)); }
+.graph-node.selected.node-mastered rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 18%, var(--surface)); }
+.graph-node.selected.node-review rect { stroke: var(--amber); fill: color-mix(in srgb, var(--amber) 15%, var(--surface)); }
+.graph-node.selected.node-wrong rect { stroke: var(--danger); fill: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+
+.graph-stats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+}
+
+.dot-not-started { border-color: var(--line-strong); background: var(--surface); }
+.dot-learning { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 20%, var(--surface)); }
+.dot-mastered { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 20%, var(--surface)); }
+.dot-review { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 20%, var(--surface)); }
+.dot-wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 20%, var(--surface)); }
+.dot-scenario { border-color: var(--blue); border-style: dashed; background: var(--surface); }
+
+.graph-node-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.graph-module-mastery {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.graph-module-mastery .progress-bar {
+  width: 80px;
+}
+
+.graph-dependencies {
+  margin-top: 12px;
+}
+
+.graph-dependencies h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.graph-dependencies div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.graph-dependencies button {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--line);
+}
+
+.graph-dependencies button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.graph-review-suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--amber) 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--line));
+}
+
+.graph-review-suggestion > svg {
+  flex-shrink: 0;
+  color: var(--amber);
+  margin-top: 2px;
+}
+
+.graph-review-suggestion strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.graph-review-suggestion .ghost-btn {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .graph-hint {
   display: flex;
   gap: 8px;
@@ -2375,6 +2509,37 @@ mark {
 .compact-target {
   max-width: 150px;
   min-height: 40px;
+}
+
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  animation: sync-pulse 1.2s ease-in-out infinite;
+}
+
+.sync-badge.sync-syncing {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.sync-badge.sync-error {
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: none;
+}
+
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .route-popover {

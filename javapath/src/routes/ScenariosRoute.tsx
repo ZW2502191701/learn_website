@@ -1,15 +1,24 @@
-import { Bookmark, CheckCircle2, Route } from 'lucide-react';
+import { Bookmark, CheckCircle2, Route, StickyNote } from 'lucide-react';
 import { useState } from 'react';
 import type { RouteProps } from '../types';
 import { ArchitectureDiagram } from '../components/ArchitectureDiagram';
 import { Panel, Tag } from '../components/Primitives';
-import { appData, moduleLookup, questionLookup } from '../data/appData';
-import { toggleFavorite } from '../lib/storage';
+import { appData, knowledgeLookup, moduleLookup, questionLookup } from '../data/appData';
+import { toggleFavorite, updateNote } from '../lib/storage';
 
 export function ScenariosRoute({ state, setState, goTo }: RouteProps) {
   const [activeId, setActiveId] = useState(appData.scenarios[0]?.id ?? '');
   const scenario = appData.scenarios.find((item) => item.id === activeId) ?? appData.scenarios[0];
   const isFavorite = state.favorites.some((item) => item.targetId === scenario.id && item.targetType === 'scenario');
+
+  // 关联知识点：从 scenario.moduleIds 关联的模块中找高频知识点
+  const relatedKnowledge = scenario.moduleIds
+    .flatMap((moduleId) =>
+      appData.knowledgePoints
+        .filter((kp) => kp.moduleId === moduleId && kp.tags.some((t) => scenario.tags.includes(t) || scenario.title.includes(kp.title.slice(0, 4))))
+        .slice(0, 2)
+    )
+    .slice(0, 4);
 
   return (
     <div className="scenario-layout">
@@ -91,6 +100,24 @@ export function ScenariosRoute({ state, setState, goTo }: RouteProps) {
           <blockquote className="template-box">{scenario.expressionTemplate}</blockquote>
         </Panel>
 
+        {/* 关联知识点 */}
+        {relatedKnowledge.length > 0 && (
+          <Panel title="关联知识点">
+            <div className="shortcut-grid compact">
+              {relatedKnowledge.map((kp) => (
+                <button
+                  type="button"
+                  key={kp.id}
+                  onClick={() => goTo('modules', kp.title)}
+                >
+                  <span>{kp.title}</span>
+                  <small>{moduleLookup.get(kp.moduleId)?.title}</small>
+                </button>
+              ))}
+            </div>
+          </Panel>
+        )}
+
         <Panel title="关联面试题">
           <div className="shortcut-grid compact">
             {scenario.relatedQuestionIds.map((id) => {
@@ -102,6 +129,21 @@ export function ScenariosRoute({ state, setState, goTo }: RouteProps) {
               ) : null;
             })}
           </div>
+        </Panel>
+
+        {/* 个人笔记 */}
+        <Panel title="场景笔记">
+          <label className="note-box">
+            <span>
+              <StickyNote size={14} />
+              记录你的场景分析思路、项目经验和面试表达要点
+            </span>
+            <textarea
+              value={state.notes[`scenario:${scenario.id}`] ?? ''}
+              onChange={(event) => setState((current) => updateNote(current, `scenario:${scenario.id}`, event.target.value))}
+              placeholder="例如：我在项目中遇到过类似的秒杀场景，用了 Redis + MQ 的方案..."
+            />
+          </label>
         </Panel>
       </div>
     </div>

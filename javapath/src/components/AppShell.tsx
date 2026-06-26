@@ -17,6 +17,7 @@ import type { RouteId } from '../types';
 import { appData } from '../data/appData';
 import { daysUntil, overallMastery } from '../lib/metrics';
 import { backupState, exportState, importState, resetStateWithBackup } from '../lib/storage';
+import type { SyncStatus } from '../hooks/useStorageSync';
 import type { UserState } from '../types';
 
 interface AppShellProps {
@@ -28,6 +29,7 @@ interface AppShellProps {
   globalQuery: string;
   setGlobalQuery: (value: string) => void;
   goTo: (route: RouteId, query?: string) => void;
+  syncStatus?: SyncStatus;
   children: React.ReactNode;
 }
 
@@ -54,6 +56,7 @@ export function AppShell({
   globalQuery,
   setGlobalQuery,
   goTo,
+  syncStatus,
   children
 }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -182,6 +185,12 @@ export function AppShell({
               <b style={{ width: `${mastery}%` }} />
             </i>
           </div>
+
+          {syncStatus && syncStatus !== 'idle' && (
+            <div className={`sync-badge sync-${syncStatus}`} title={syncStatus === 'syncing' ? '同步中...' : '同步失败'}>
+              {syncStatus === 'syncing' ? '⟳' : '⚠'}
+            </div>
+          )}
 
           <label className="target-date compact-target">
             <Target size={15} />

@@ -57,22 +57,67 @@ npm run validate:data
 
 ## 数据来源与扩展
 
-旧版静态站数据位于 `web/data/*.js`。当前项目通过：
+### 内容管线概览
+
+```text
+web/data/*.js  ──npm run convert:data──>  src/data/legacyChapters.ts
+                                              │
+                                              ▼
+                                         src/data/appData.ts  (运行时归一化)
+                                              │
+                                              ▼
+                                    Module / Chapter / KnowledgePoint /
+                                    InterviewQuestion / Scenario / StudyPlan
+```
+
+### Canonical Source
+
+- **curated 数据源**：`src/data/legacyChapters.ts`（由 `web/data/*.js` 生成，提交到仓库）
+- **运行时归一化**：`src/data/appData.ts`（从 legacyChapters 生成模块、章节、知识点、面试题、场景和学习计划）
+- **legacy 原始数据**：`web/data/*.js`（旧版静态站数据，修改后需重新运行转换命令）
+- **PDF draft 来源**：`scripts/parse_pdfs.py`（离线解析 PDF，输出 draft 供人工审核）
+
+### 数据转换
 
 ```bash
 npm run convert:data
 ```
 
-读取 `web/data/*.js` 并生成已提交到仓库的 `src/data/legacyChapters.ts`。当 `web/data/*.js` 有内容调整时，应重新运行转换命令并一并提交生成结果。运行时再由 `src/data/appData.ts` 归一化为：
+读取 `web/data/*.js` 并生成 `src/data/legacyChapters.ts`。当 `web/data/*.js` 有内容调整时，应重新运行转换命令并一并提交生成结果。脚本会输出转换报告，包含章节统计和错误信息。
 
-- `Module`
-- `Chapter`
-- `KnowledgePoint`
-- `InterviewQuestion`
-- `Scenario`
-- `StudyProgress`
-- `WrongQuestion`
-- `Favorite`
-- `StudyPlan`
+### 数据校验
 
-后续接入 PDF 解析结果时，可以复用 `scripts/parse_pdfs.py`。该脚本会生成 `knowledge.json`、`summary.json`、`knowledge.js`、逐 PDF Markdown 和图片 assets；这些产物应先作为 draft/校对输入，再映射到同一套 TypeScript 数据模型，不应无审查覆盖 curated 数据。若要后端化，建议让 Spring Boot 暴露这些模型对应的 API，并将学习进度、错题、收藏、计划存入 MySQL/Redis。
+```bash
+npm run validate:data
+```
+
+校验内容完整性，包括：
+
+- ID 唯一性（module / chapter / knowledge / question / scenario / plan）
+- 引用完整性（所有跨实体引用指向存在的 ID）
+- 内容质量（重复标题、空正文、无关联题目的知识点/场景、孤立节点）
+
+### PDF 解析（离线 draft）
+
+```bash
+python scripts/parse_pdfs.py --src "D:\AI_Test\learn" --out "D:\AI_Test\javapath\output"
+```
+
+产出：
+
+- `knowledge.json` / `summary.json` — 程序消费的标准 JSON
+- `knowledge.js` — 浏览器可直接引入的 `window.KNOWLEDGE_DATA` shim
+- 逐 PDF Markdown — 便于人工校对
+- `assets/` — 提取的图片
+
+**重要**：PDF 解析结果应作为 draft/校对输入，不应无审查覆盖 curated 数据。接入时需保留 `sourcePdf`、`confidence`、`needsReview` 等来源字段。
+
+### 运行时归一化
+
+`src/data/appData.ts` 从 `legacyChapters` 生成：
+
+- `Module` / `Chapter` / `KnowledgePoint` / `InterviewQuestion` / `Scenario` / `StudyPlan`
+
+并导出 `CONTENT_VERSION` 和 `CONTENT_STATS` 用于数据管线追踪。
+
+若要后端化，建议让 Spring Boot 暴露这些模型对应的 API，并将学习进度、错题、收藏、计划存入 MySQL/Redis。

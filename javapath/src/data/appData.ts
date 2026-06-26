@@ -480,3 +480,14 @@ for (const point of appData.knowledgePoints) {
     pointsByModule.set(point.moduleId, [point]);
   }
 }
+
+/** 内容版本信息，用于数据管线追踪和未来 migration */
+export const CONTENT_VERSION = 1;
+export const CONTENT_STATS = {
+  modules: appData.modules.length,
+  chapters: appData.chapters.length,
+  knowledgePoints: appData.knowledgePoints.length,
+  questions: appData.questions.length,
+  scenarios: appData.scenarios.length,
+  studyPlans: appData.studyPlans.length
+} as const;

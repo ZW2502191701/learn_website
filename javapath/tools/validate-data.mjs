@@ -57,6 +57,7 @@ if (!appData) {
   throw new Error('Unable to load appData from src/data/appData.ts.');
 }
 
+// ── ID 唯一性 ─────────────────────────────────────────────────────
 const assertUniqueIds = (items, label) => {
   const seen = new Set();
   for (const item of items) {
@@ -77,12 +78,14 @@ const questionIds = assertUniqueIds(appData.questions, 'questions');
 const scenarioIds = assertUniqueIds(appData.scenarios, 'scenarios');
 const planIds = assertUniqueIds(appData.studyPlans, 'studyPlans');
 
+// ── 基本完整性 ─────────────────────────────────────────────────────
 if (!appData.modules.length) addError('modules must not be empty.');
 if (!appData.knowledgePoints.length) addError('knowledgePoints must not be empty.');
 if (!appData.questions.length) addWarning('questions is empty; interview training will be sparse.');
 if (!appData.scenarios.length) addWarning('scenarios is empty; scenario practice will be sparse.');
 if (!appData.studyPlans.length) addWarning('studyPlans is empty; plan route will be sparse.');
 
+// ── 引用完整性 ─────────────────────────────────────────────────────
 for (const module of appData.modules) {
   if (!module.title) addError(`module ${module.id} has empty title.`);
   if (!module.source) addWarning(`module ${module.id} has empty source.`);
@@ -102,6 +105,7 @@ for (const point of appData.knowledgePoints) {
   if (!moduleIds.has(point.moduleId)) addError(`knowledge point ${point.id} references missing module ${point.moduleId}.`);
   if (!chapterIds.has(point.chapterId)) addError(`knowledge point ${point.id} references missing chapter ${point.chapterId}.`);
   if (!point.title) addError(`knowledge point ${point.id} has empty title.`);
+  if (!point.coreConcepts?.length) addWarning(`knowledge point ${point.id} has no core concepts.`);
   for (const dependencyId of point.dependencies ?? []) {
     if (!knowledgeIds.has(dependencyId)) addError(`knowledge point ${point.id} references missing dependency ${dependencyId}.`);
   }
@@ -117,11 +121,16 @@ for (const question of appData.questions) {
   }
   if (!question.title) addError(`question ${question.id} has empty title.`);
   if (!question.answer) addWarning(`question ${question.id} has empty answer.`);
+  if (!question.points?.length) addWarning(`question ${question.id} has no answer points.`);
 }
 
 for (const scenario of appData.scenarios) {
   if (!scenarioIds.has(scenario.id)) continue;
   if (!scenario.title) addError(`scenario ${scenario.id} has empty title.`);
+  if (!scenario.background) addWarning(`scenario ${scenario.id} has empty background.`);
+  if (!scenario.problem) addWarning(`scenario ${scenario.id} has empty problem.`);
+  if (!scenario.solution?.length) addWarning(`scenario ${scenario.id} has no solutions.`);
+  if (!scenario.expressionTemplate) addWarning(`scenario ${scenario.id} has no expression template.`);
   for (const moduleId of scenario.moduleIds ?? []) {
     if (!moduleIds.has(moduleId)) addError(`scenario ${scenario.id} references missing module ${moduleId}.`);
   }
@@ -147,6 +156,56 @@ for (const plan of appData.studyPlans) {
   }
 }
 
+// ── 内容质量检查 ───────────────────────────────────────────────────
+// 检查重复标题
+const kpTitles = new Map();
+for (const point of appData.knowledgePoints) {
+  const existing = kpTitles.get(point.title);
+  if (existing) {
+    addWarning(`knowledge point "${point.title}" has duplicate title (ids: ${existing}, ${point.id}).`);
+  } else {
+    kpTitles.set(point.title, point.id);
+  }
+}
+
+const qTitles = new Map();
+for (const question of appData.questions) {
+  const existing = qTitles.get(question.title);
+  if (existing) {
+    addWarning(`question "${question.title.slice(0, 30)}..." has duplicate title (ids: ${existing}, ${question.id}).`);
+  } else {
+    qTitles.set(question.title, question.id);
+  }
+}
+
+// 检查孤立知识点（不在任何章节中）
+const chapterPointIds = new Set(appData.chapters.flatMap((ch) => ch.knowledgePointIds ?? []));
+const orphanPoints = appData.knowledgePoints.filter((kp) => !chapterPointIds.has(kp.id));
+if (orphanPoints.length) {
+  addWarning(`${orphanPoints.length} knowledge point(s) not referenced by any chapter: ${orphanPoints.map((p) => p.id).join(', ')}.`);
+}
+
+// 检查没有关联题目的知识点
+const pointsWithoutQuestions = appData.knowledgePoints.filter((kp) => !kp.relatedQuestionIds?.length);
+if (pointsWithoutQuestions.length) {
+  addWarning(`${pointsWithoutQuestions.length} knowledge point(s) have no related questions.`);
+}
+
+// 检查没有关联题目的场景
+const scenariosWithoutQuestions = appData.scenarios.filter((s) => !s.relatedQuestionIds?.length);
+if (scenariosWithoutQuestions.length) {
+  addWarning(`${scenariosWithoutQuestions.length} scenario(s) have no related questions.`);
+}
+
+// 检查模块是否都有知识点
+for (const module of appData.modules) {
+  const modulePoints = appData.knowledgePoints.filter((kp) => kp.moduleId === module.id);
+  if (!modulePoints.length) {
+    addWarning(`module "${module.title}" (${module.id}) has no knowledge points.`);
+  }
+}
+
+// ── 输出报告 ───────────────────────────────────────────────────────
 const summary = {
   modules: appData.modules.length,
   chapters: appData.chapters.length,
@@ -154,6 +213,7 @@ const summary = {
   questions: appData.questions.length,
   scenarios: appData.scenarios.length,
   studyPlans: appData.studyPlans.length,
+  contentVersion: appExports.CONTENT_VERSION ?? 'unknown',
   warnings: warnings.length,
   errors: errors.length
 };

@@ -18,7 +18,15 @@ export {
   toggleWrongQuestion,
   updateNote,
   toggleTodayCheckin,
-  updateWrongNote
+  updateWrongNote,
+  addReviewScheduleItem,
+  updateReviewScheduleItem,
+  removeReviewScheduleItem,
+  addInterviewSession,
+  updateInterviewSession,
+  addLearningSession,
+  addMasteryRecord,
+  upsertProjectExpression
 } from './mutations';
 
 // ── Adapter interface + default local adapter ────────────────────

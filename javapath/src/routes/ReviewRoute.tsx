@@ -1,14 +1,16 @@
-import { Bookmark, RotateCcw, Sparkles, StickyNote, Zap } from 'lucide-react';
+import { Bookmark, RotateCcw, Sparkles, StickyNote, Zap, Brain, Filter, BarChart3 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { RouteProps } from '../types';
 import { EmptyState, Panel, Tag } from '../components/Primitives';
+import { SpacedReviewSession } from '../components/SpacedReviewSession';
 import { appData, knowledgeLookup, moduleLookup, questionLookup, scenarioLookup } from '../data/appData';
 import { updateWrongNote } from '../lib/storage';
 import { rankWrongQuestions, buildTodayReviewQueue } from '../lib/reviewScheduler';
 import { upsertProgress } from '../lib/storage';
+import { getDueReviews } from '../services/reviewService';
 import { useToast } from '../hooks/useToast';
 
-type Tab = 'wrong' | 'favorites' | 'today';
+type Tab = 'wrong' | 'favorites' | 'today' | 'spaced';
 
 function Flashcard({ items, onClose, setState }: {
   items: ReturnType<typeof buildTodayReviewQueue>;
@@ -72,18 +74,33 @@ export function ReviewRoute({ state, setState, goTo }: RouteProps) {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>('today');
   const [flashcardMode, setFlashcardMode] = useState(false);
+  const [spacedMode, setSpacedMode] = useState(false);
   const ranked = useMemo(() => rankWrongQuestions(state, 20), [state]);
   const todayQueue = useMemo(() => buildTodayReviewQueue(state, 20), [state]);
+  const dueReviews = useMemo(() => getDueReviews(state), [state]);
 
   if (flashcardMode) {
     return <Flashcard items={todayQueue} onClose={() => setFlashcardMode(false)} setState={setState} />;
+  }
+
+  if (spacedMode) {
+    return (
+      <div style={{ padding: 16 }}>
+        <div style={{ marginBottom: 12 }}>
+          <button type="button" className="ghost-btn" onClick={() => setSpacedMode(false)}>
+            ← 返回
+          </button>
+        </div>
+        <SpacedReviewSession state={state} setState={setState} onComplete={() => setSpacedMode(false)} />
+      </div>
+    );
   }
 
   return (
     <div className="review-grid">
       {/* Tab switcher */}
       <div className="span-12" style={{ display: 'flex', gap: 6, padding: '4px', border: '1px solid var(--line)', borderRadius: 8, background: 'var(--surface-2)', width: 'fit-content' }}>
-        {([['today', `今日待复习 (${todayQueue.length})`], ['wrong', `错题复盘 (${ranked.length})`], ['favorites', `收藏 (${state.favorites.length})`]] as [Tab, string][]).map(([id, label]) => (
+        {([['today', `今日待复习 (${todayQueue.length})`], ['spaced', `间隔复习 (${dueReviews.length})`], ['wrong', `错题复盘 (${ranked.length})`], ['favorites', `收藏 (${state.favorites.length})`]] as [Tab, string][]).map(([id, label]) => (
           <button key={id} type="button"
             style={{ minHeight: 34, padding: '0 12px', borderRadius: 7, background: tab === id ? 'var(--surface)' : 'transparent', color: tab === id ? 'var(--text)' : 'var(--muted)', cursor: 'pointer', fontSize: 13, fontWeight: 700, border: 'none' }}
             onClick={() => setTab(id)}>{label}</button>
@@ -117,29 +134,76 @@ export function ReviewRoute({ state, setState, goTo }: RouteProps) {
         </Panel>
       )}
 
+      {tab === 'spaced' && (
+        <Panel title="间隔复习（SM-2）" className="span-12"
+          action={dueReviews.length > 0 ? <button className="primary-btn" type="button" style={{ minHeight: 32, padding: '0 12px', fontSize: 13 }} onClick={() => setSpacedMode(true)}><Brain size={14} /> 开始复习</button> : undefined}>
+          {dueReviews.length > 0 ? (
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>
+                基于 SM-2 算法自动调度，答对间隔递增，答错重置。当前有 {dueReviews.length} 道题到期。
+              </div>
+              {dueReviews.slice(0, 10).map((r) => {
+                const q = questionLookup.get(r.questionId);
+                const mod = moduleLookup.get(r.moduleId);
+                const daysOverdue = Math.round((Date.now() - new Date(r.nextReviewAt).getTime()) / 86_400_000);
+                return (
+                  <div key={r.questionId} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, padding: '6px 0', borderBottom: '1px solid var(--line)' }}>
+                    <Tag tone="blue">{mod?.title ?? r.moduleId}</Tag>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {q?.title ?? r.questionId}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                      间隔 {r.intervalDays}天 · EF {r.easeFactor.toFixed(1)}
+                    </span>
+                    {daysOverdue > 0 && <Tag tone="hot">逾期 {daysOverdue}天</Tag>}
+                  </div>
+                );
+              })}
+            </div>
+          ) : <EmptyState title="暂无待复习题目" body="答错的题目和需要巩固的知识点会通过 SM-2 算法自动安排复习。" />}
+        </Panel>
+      )}
+
       {tab === 'wrong' && (
-        <Panel title="错题复盘" className="span-12">
+        <Panel title="错题本" className="span-12"
+          action={<span style={{ fontSize: 12, color: 'var(--muted)' }}>共 {state.wrongQuestions.length} 道错题</span>}>
           {ranked.length ? (
-            <div className="review-list">
-              {ranked.map((item) => {
-                const question = questionLookup.get(item.wrong.questionId);
-                return question ? (
-                  <article className="review-card" key={item.wrong.questionId}>
-                    <div>
-                      <div className="review-card-head">
-                        <Tag tone="hot">{item.moduleTitle}</Tag>
-                        <span className="review-priority-score">优先级 {item.priority}</span>
-                      </div>
-                      <h3>{question.title}</h3>
-                      <p>{question.points.slice(0, 2).join('；')}</p>
-                      {item.reasons.length > 0 && (
-                        <div className="review-reasons">
-                          {item.reasons.slice(0, 2).map((r) => <Tag key={r} tone="blue">{r}</Tag>)}
-                        </div>
-                      )}
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+                {(() => {
+                  const byModule: Record<string, number> = {};
+                  for (const w of state.wrongQuestions) {
+                    byModule[w.moduleId] = (byModule[w.moduleId] ?? 0) + 1;
+                  }
+                  return Object.entries(byModule).sort(([, a], [, b]) => b - a).slice(0, 6).map(([modId, count]) => (
+                    <div key={modId} style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--surface)', border: '1px solid var(--line)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: count >= 3 ? 'var(--danger)' : 'var(--text)' }}>{count}</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>{moduleLookup.get(modId)?.title ?? modId}</div>
                     </div>
-                    <label className="note-box compact">
-                      <span><StickyNote size={14} /> 复盘笔记</span>
+                  ));
+                })()}
+              </div>
+
+              <div className="review-list">
+                {ranked.map((item) => {
+                  const question = questionLookup.get(item.wrong.questionId);
+                  return question ? (
+                    <article className="review-card" key={item.wrong.questionId}>
+                      <div>
+                        <div className="review-card-head">
+                          <Tag tone="hot">{item.moduleTitle}</Tag>
+                          <span className="review-priority-score">优先级 {item.priority}</span>
+                        </div>
+                        <h3>{question.title}</h3>
+                        <p>{question.points.slice(0, 2).join('；')}</p>
+                        {item.reasons.length > 0 && (
+                          <div className="review-reasons">
+                            {item.reasons.slice(0, 2).map((r) => <Tag key={r} tone="blue">{r}</Tag>)}
+                          </div>
+                        )}
+                      </div>
+                      <label className="note-box compact">
+                        <span><StickyNote size={14} /> 复盘笔记</span>
                       <textarea value={item.wrong.note}
                         onChange={(e) => setState((cur) => updateWrongNote(cur, item.wrong.questionId, e.target.value))}
                         placeholder="这题为什么错？下次答题先说什么？" />
@@ -150,6 +214,7 @@ export function ReviewRoute({ state, setState, goTo }: RouteProps) {
                   </article>
                 ) : null;
               })}
+              </div>
             </div>
           ) : <EmptyState title="暂无错题" body="在面试训练页把题目标记为错题后，会进入这里复盘。" />}
         </Panel>

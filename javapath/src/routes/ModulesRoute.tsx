@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { RouteProps } from '../types';
 import { ProgressBar, StatusSelect, Tag } from '../components/Primitives';
 import { SafeHtml } from '../components/SafeHtml';
+import { KnowledgeDepthTabs } from '../components/KnowledgeDepthTabs';
+import { SelfScoreWidget } from '../components/SelfScoreWidget';
 import { appData, chapterLookup, moduleLookup } from '../data/appData';
 import { getProgress, masteryForModule, statusLabel } from '../lib/metrics';
 import { toggleFavorite, updateNote, upsertProgress } from '../lib/storage';
@@ -168,6 +170,23 @@ export function ModulesRoute({ state, setState, globalQuery, goTo }: RouteProps)
               {activePoint.code && (
                 <pre className="code-block reader-code"><code>{activePoint.code}</code></pre>
               )}
+
+              <section style={{ marginTop: 16 }}>
+                <KnowledgeDepthTabs
+                  kp={activePoint}
+                  questions={relatedQuestions}
+                  onNavigateInterview={(q) => goTo('interview', q)}
+                  onNavigateScenarios={() => goTo('scenarios')}
+                />
+              </section>
+
+              <section style={{ marginTop: 16, padding: 16, borderRadius: 8, background: 'var(--surface)', border: '1px solid var(--line)' }}>
+                <SelfScoreWidget onSave={(scores) => {
+                  const summary = Object.entries(scores).map(([k, v]) => `${k}:${v}`).join(', ');
+                  setState((cur) => updateNote(cur, activePoint.id, `[自评] ${summary}\n${cur.notes[activePoint.id] ?? ''}`));
+                  toast.success('自我评估已保存到笔记');
+                }} />
+              </section>
 
               <label className="note-box reader-note">
                 <span>个人笔记</span>

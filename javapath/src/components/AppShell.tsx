@@ -213,7 +213,7 @@ export function AppShell({
         </form>
 
         <div className="workspace-actions">
-          <button type="button" className="route-menu-button" onClick={() => setMenuOpen((v) => !v)} aria-expanded={menuOpen}>
+          <button type="button" className="route-menu-button" onClick={() => setMenuOpen((v) => !v)} aria-expanded={menuOpen} aria-label="打开全部页面">
             <Menu size={17} /><span>{title}</span><ChevronDown size={15} />
           </button>
 

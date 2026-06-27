@@ -1,4 +1,5 @@
 import { legacyChapters } from './legacyChapters';
+import { enrichments } from './contentEnrichment';
 import type {
   AppData,
   Chapter,
@@ -291,6 +292,24 @@ for (const [fromTitle, toTitle] of dependencyPairs) {
   const to = knowledgePoints.find((item) => item.title.includes(toTitle) || toTitle.includes(item.title));
   if (from && to && !to.dependencies.includes(from.id)) {
     to.dependencies.push(from.id);
+  }
+}
+
+// Merge content enrichments into questions
+for (const enrichment of enrichments) {
+  // Support pipe-separated patterns: "MySQL.*索引|索引.*MySQL"
+  const patterns = enrichment.questionIdContains.split('|');
+  const q = questions.find((q) => {
+    const text = `${q.id} ${q.title} ${q.answer}`;
+    return patterns.some((p) => text.includes(p.replace(/\.\*/g, ' ').trim()) || text.includes(p));
+  });
+  if (q) {
+    if (enrichment.interviewAnswer) q.interviewAnswer = enrichment.interviewAnswer;
+    if (enrichment.deepAnswer) q.deepAnswer = enrichment.deepAnswer;
+    if (enrichment.sourceCodeAnswer) q.sourceCodeAnswer = enrichment.sourceCodeAnswer;
+    if (enrichment.oralAnswer) q.oralAnswer = enrichment.oralAnswer;
+    if (enrichment.projectAnswer) q.projectAnswer = enrichment.projectAnswer;
+    if (enrichment.commonMistakes) q.commonMistakes = enrichment.commonMistakes;
   }
 }
 

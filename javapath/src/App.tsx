@@ -9,9 +9,12 @@ import {
   CalendarDays,
   GitBranch,
   LayoutDashboard,
+  Mic,
+  Presentation,
   Search,
   ShieldQuestion,
-  Sparkles
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
 import { AppShell } from './components/AppShell';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -30,6 +33,9 @@ const ScenariosRoute = lazy(() => import('./routes/ScenariosRoute').then((m) => 
 const PlanRoute = lazy(() => import('./routes/PlanRoute').then((m) => ({ default: m.PlanRoute })));
 const ReviewRoute = lazy(() => import('./routes/ReviewRoute').then((m) => ({ default: m.ReviewRoute })));
 const SearchRoute = lazy(() => import('./routes/SearchRoute').then((m) => ({ default: m.SearchRoute })));
+const InterviewRoomRoute = lazy(() => import('./routes/InterviewRoomRoute').then((m) => ({ default: m.InterviewRoomRoute })));
+const ProjectExpressionRoute = lazy(() => import('./routes/ProjectExpressionRoute').then((m) => ({ default: m.ProjectExpressionRoute })));
+const AnalyticsRoute = lazy(() => import('./routes/AnalyticsRoute').then((m) => ({ default: m.AnalyticsRoute })));
 
 export const routes = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -37,9 +43,12 @@ export const routes = [
   { id: 'modules', label: '知识模块', icon: Boxes },
   { id: 'graph', label: '知识图谱', icon: Brain },
   { id: 'interview', label: '面试训练', icon: ShieldQuestion },
+  { id: 'interviewRoom', label: '模拟面试室', icon: Mic },
   { id: 'scenarios', label: '场景实战', icon: BarChart3 },
+  { id: 'projectExpression', label: '项目表达', icon: Presentation },
   { id: 'plan', label: '复习计划', icon: CalendarDays },
   { id: 'review', label: '错题与收藏', icon: BookMarked },
+  { id: 'analytics', label: '学习分析', icon: TrendingUp },
   { id: 'search', label: '全文搜索', icon: Search }
 ] satisfies Array<{ id: RouteId; label: string; icon: typeof Sparkles }>;
 
@@ -51,9 +60,12 @@ const routeTitles: Record<RouteId, string> = {
   modules: '知识模块',
   graph: '知识图谱',
   interview: '面试训练',
+  interviewRoom: '模拟面试室',
   scenarios: '场景实战',
+  projectExpression: '项目表达',
   plan: '复习计划',
   review: '错题与收藏',
+  analytics: '学习分析',
   search: '全文搜索'
 };
 
@@ -124,9 +136,12 @@ function AppInner() {
     modules: <ModulesRoute {...routeProps} />,
     graph: <KnowledgeGraphRoute {...routeProps} />,
     interview: <InterviewRoute {...routeProps} />,
+    interviewRoom: <InterviewRoomRoute {...routeProps} />,
     scenarios: <ScenariosRoute {...routeProps} />,
+    projectExpression: <ProjectExpressionRoute {...routeProps} />,
     plan: <PlanRoute {...routeProps} />,
     review: <ReviewRoute {...routeProps} />,
+    analytics: <AnalyticsRoute {...routeProps} />,
     search: <SearchRoute {...routeProps} />
   }[route];
 

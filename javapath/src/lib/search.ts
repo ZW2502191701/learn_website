@@ -1,9 +1,9 @@
-import { appData, moduleLookup } from '../data/appData';
-import type { InterviewQuestion, KnowledgePoint, Scenario } from '../types';
+import { appData, moduleLookup, questionLookup } from '../data/appData';
+import type { InterviewQuestion, KnowledgePoint, Scenario, UserState } from '../types';
 
 // ── 类型 ───────────────────────────────────────────────────────────
-export type SearchResultType = '知识点' | '面试题' | '场景题';
-export type SearchRouteTarget = 'modules' | 'interview' | 'scenarios';
+export type SearchResultType = '知识点' | '面试题' | '场景题' | '笔记' | '错题';
+export type SearchRouteTarget = 'modules' | 'interview' | 'scenarios' | 'review';
 
 export interface SearchResult {
   type: SearchResultType;
@@ -12,8 +12,9 @@ export interface SearchResult {
   moduleId: string;
   body: string;
   score: number;
-  matchedField: 'title' | 'tags' | 'body';
+  matchedField: 'title' | 'tags' | 'body' | 'note';
   route: SearchRouteTarget;
+  hitReason?: string;
 }
 
 // ── 工具函数 ───────────────────────────────────────────────────────
@@ -251,4 +252,57 @@ export function getHighlightSegments(
 /** 获取匹配模块标题 */
 export function getModuleName(moduleId: string): string {
   return moduleLookup.get(moduleId)?.title ?? moduleId;
+}
+
+export function searchNotes(query: string, state: UserState): SearchResult[] {
+  const nq = normalizeText(query);
+  if (!nq) return [];
+  const results: SearchResult[] = [];
+  for (const [kpId, note] of Object.entries(state.notes)) {
+    if (!normalizeText(note).includes(nq)) continue;
+    const kp = appData.knowledgePoints.find((p) => p.id === kpId);
+    results.push({
+      type: '笔记',
+      id: kpId,
+      title: kp?.title ?? kpId,
+      moduleId: kp?.moduleId ?? '',
+      body: note,
+      score: 30,
+      matchedField: 'note',
+      route: 'modules',
+      hitReason: '笔记内容匹配'
+    });
+  }
+  return results;
+}
+
+export function searchWrongQuestions(query: string, state: UserState): SearchResult[] {
+  const nq = normalizeText(query);
+  if (!nq) return [];
+  const results: SearchResult[] = [];
+  for (const wq of state.wrongQuestions) {
+    const q = questionLookup.get(wq.questionId);
+    if (!q) continue;
+    const text = `${q.title} ${wq.reason} ${wq.note}`;
+    if (!normalizeText(text).includes(nq)) continue;
+    results.push({
+      type: '错题',
+      id: wq.questionId,
+      title: q.title,
+      moduleId: wq.moduleId,
+      body: wq.note || wq.reason,
+      score: 35,
+      matchedField: 'body',
+      route: 'review',
+      hitReason: '错题匹配'
+    });
+  }
+  return results;
+}
+
+export function searchAllWithState(query: string, state: UserState): SearchResult[] {
+  const base = searchAll(query);
+  const notes = searchNotes(query, state);
+  const wrongs = searchWrongQuestions(query, state);
+  return [...base, ...notes, ...wrongs].sort((a, b) => b.score - a.score);
 }

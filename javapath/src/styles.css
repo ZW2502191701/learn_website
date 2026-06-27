@@ -2672,9 +2672,6 @@ mark {
 .route-menu-button span {
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-  font-size: 13px;
-  font-weight: 700;
-}
 
 .study-signal {
   min-height: 38px;

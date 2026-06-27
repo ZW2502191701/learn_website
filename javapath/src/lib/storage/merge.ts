@@ -1,4 +1,14 @@
-import type { UserState, StudyProgress, WrongQuestion, Favorite } from '../../types';
+import type {
+  UserState,
+  StudyProgress,
+  WrongQuestion,
+  Favorite,
+  ReviewScheduleItem,
+  InterviewSession,
+  LearningSession,
+  MasteryRecord,
+  ProjectExpression
+} from '../../types';
 
 const STATUS_WEIGHT: Record<string, number> = {
   'not-started': 0,
@@ -15,7 +25,12 @@ export function mergeStates(local: UserState, remote: UserState): UserState {
     notes: mergeNotes(local.notes, remote.notes, local, remote),
     checkins: mergeCheckins(local.checkins, remote.checkins),
     targetDate: mergeTargetDate(local.targetDate, remote.targetDate),
-    theme: local.theme
+    theme: local.theme,
+    reviewSchedule: mergeReviewSchedule(local.reviewSchedule, remote.reviewSchedule),
+    interviewSessions: mergeById(local.interviewSessions, remote.interviewSessions),
+    learningSessions: mergeById(local.learningSessions, remote.learningSessions),
+    masteryHistory: mergeMasteryHistory(local.masteryHistory, remote.masteryHistory),
+    projectExpressions: mergeById(local.projectExpressions, remote.projectExpressions)
   };
 }
 
@@ -135,4 +150,41 @@ function mergeCheckins(local: string[], remote: string[]): string[] {
 
 function mergeTargetDate(local: string, remote: string): string {
   return local >= remote ? local : remote;
+}
+
+function mergeReviewSchedule(local: ReviewScheduleItem[], remote: ReviewScheduleItem[]): ReviewScheduleItem[] {
+  const map = new Map<string, ReviewScheduleItem>();
+  for (const item of local) map.set(item.questionId, item);
+  for (const item of remote) {
+    const existing = map.get(item.questionId);
+    if (!existing) {
+      map.set(item.questionId, item);
+    } else {
+      const lr = existing.repetitions;
+      const rr = item.repetitions;
+      const winner = rr > lr ? item : rr < lr ? existing
+        : (item.nextReviewAt > existing.nextReviewAt ? item : existing);
+      map.set(item.questionId, winner);
+    }
+  }
+  return [...map.values()];
+}
+
+function mergeById<T extends { id: string }>(local: T[], remote: T[]): T[] {
+  const map = new Map<string, T>();
+  for (const item of local) map.set(item.id, item);
+  for (const item of remote) {
+    if (!map.has(item.id)) map.set(item.id, item);
+  }
+  return [...map.values()];
+}
+
+function mergeMasteryHistory(local: MasteryRecord[], remote: MasteryRecord[]): MasteryRecord[] {
+  const map = new Map<string, MasteryRecord>();
+  for (const rec of local) map.set(`${rec.knowledgePointId}:${rec.recordedAt}`, rec);
+  for (const rec of remote) {
+    const key = `${rec.knowledgePointId}:${rec.recordedAt}`;
+    if (!map.has(key)) map.set(key, rec);
+  }
+  return [...map.values()];
 }

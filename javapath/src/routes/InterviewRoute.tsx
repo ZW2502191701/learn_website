@@ -1,12 +1,16 @@
-import { Bookmark, CheckCircle2, MessageCircle, RotateCcw, ShieldQuestion, Timer } from 'lucide-react';
+import { Bookmark, CheckCircle2, MessageCircle, RotateCcw, ShieldQuestion, Timer, PenLine } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { QuestionCategory, RouteProps } from '../types';
+import type { QuestionCategory, RouteId, RouteProps } from '../types';
 import { Panel, Tag } from '../components/Primitives';
 import { SafeHtml } from '../components/SafeHtml';
+import { AnswerComparison } from '../components/AnswerComparison';
+import { AnswerVersionTabs } from '../components/AnswerVersionTabs';
+import { CrossReferences } from '../components/CrossReferences';
 import { appData, moduleLookup } from '../data/appData';
 import { useDebounce } from '../hooks/useDebounce';
 import { normalizeText } from '../lib/search';
 import { toggleFavorite, toggleWrongQuestion, upsertProgress } from '../lib/storage';
+import { scheduleReview } from '../services/reviewService';
 import { useToast } from '../hooks/useToast';
 
 const categories: Array<'全部' | QuestionCategory> = ['全部', '基础题', '源码题', '场景题', '八股题', '项目题', '系统设计题', 'HR面'];
@@ -15,7 +19,7 @@ const interviewModes = ['大厂一面', '大厂二面', 'HR面'] as const;
 const selfEvalLabels = ['完全会 ✓', '基本会', '模糊', '不会 ✗'] as const;
 type SelfEval = typeof selfEvalLabels[number];
 
-export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
+export function InterviewRoute({ state, setState, goTo, globalQuery }: RouteProps) {
   const toast = useToast();
   const [category, setCategory] = useState<'全部' | QuestionCategory>('全部');
   const [moduleId, setModuleId] = useState('全部');
@@ -23,6 +27,10 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
   const [mode, setMode] = useState<typeof interviewModes[number]>('大厂一面');
   const [activeId, setActiveId] = useState('');
   const [revealed, setRevealed] = useState(false);
+  const [activeRecall, setActiveRecall] = useState(false);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [comparing, setComparing] = useState(false);
+  const [pointCoverage, setPointCoverage] = useState({ covered: 0, total: 0 });
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const debounce = useDebounce((v: string) => setDebouncedQuery(v), 200);
   useEffect(() => { debounce(query); }, [query, debounce]);
@@ -45,6 +53,9 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
     setActiveId(id);
     setRevealed(false);
     setElapsed(0);
+    setUserAnswer('');
+    setComparing(false);
+    setPointCoverage({ covered: 0, total: 0 });
   };
 
   // Session stats
@@ -106,6 +117,19 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
               <button type="button" key={m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>{m}</button>
             ))}
           </div>
+          <button
+            type="button"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, padding: '4px 10px',
+              borderRadius: 6, cursor: 'pointer',
+              border: `1px solid ${activeRecall ? 'var(--accent)' : 'var(--line)'}`,
+              background: activeRecall ? 'var(--accent)' : 'transparent',
+              color: activeRecall ? '#fff' : 'var(--text)'
+            }}
+            onClick={() => setActiveRecall(!activeRecall)}
+          >
+            <PenLine size={12} /> 主动回忆
+          </button>
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="按题目、答案搜索" />
           <select value={moduleId} onChange={(e) => setModuleId(e.target.value)}>
             <option>全部</option>
@@ -155,14 +179,60 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
               </div>
             </div>
 
-            {!revealed ? (
+            {!revealed && !comparing ? (
               <div className="mock-blank" style={{ flexDirection: 'column', gap: 16 }}>
                 <ShieldQuestion size={32} style={{ color: 'var(--muted)' }} />
-                <p style={{ margin: 0, color: 'var(--muted)' }}>模拟面试：先口述答案，再揭示参考答案对照。</p>
-                <button className="primary-btn" type="button" onClick={() => setRevealed(true)}>
-                  揭示答案
-                </button>
+                <p style={{ margin: 0, color: 'var(--muted)' }}>
+                  {activeRecall ? '主动回忆模式：先写下你的答案，再和参考答案对比。' : '模拟面试：先口述答案，再揭示参考答案对照。'}
+                </p>
+                {activeRecall ? (
+                  <div style={{ display: 'grid', gap: 12, width: '100%', maxWidth: 500 }}>
+                    <textarea
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      placeholder="写下你的答案..."
+                      rows={6}
+                      style={{
+                        width: '100%', padding: 12, borderRadius: 8,
+                        border: '1px solid var(--line)', background: 'var(--surface-2)',
+                        color: 'var(--text)', fontSize: 13, lineHeight: 1.6, resize: 'vertical'
+                      }}
+                    />
+                    <button className="primary-btn" type="button" onClick={() => { setComparing(true); setRevealed(true); }}>
+                      对比参考答案
+                    </button>
+                  </div>
+                ) : (
+                  <button className="primary-btn" type="button" onClick={() => setRevealed(true)}>
+                    揭示答案
+                  </button>
+                )}
               </div>
+            ) : comparing && active ? (
+              <>
+                <AnswerComparison
+                  userAnswer={userAnswer}
+                  referenceAnswer={active.answer}
+                  keyPoints={active.points}
+                  onScore={(covered, total) => setPointCoverage({ covered, total })}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginTop: 14 }}>
+                  {selfEvalLabels.map((label) => (
+                    <button key={label} type="button"
+                      style={{ minHeight: 40, borderRadius: 8, border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--text)', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}
+                      onClick={() => {
+                        const quality = label === '完全会 ✓' ? 5 : label === '基本会' ? 4 : label === '模糊' ? 2 : 0;
+                        if (quality < 3 && active) {
+                          setState((cur) => scheduleReview(cur, active.id, quality));
+                        }
+                        handleEval(label);
+                        setComparing(false);
+                      }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </>
             ) : (
               <>
                 {/* Self-evaluation */}
@@ -177,26 +247,8 @@ export function InterviewRoute({ state, setState, globalQuery }: RouteProps) {
                 </div>
 
                 <div className="answer-body">
-                  <section>
-                    <h3>参考答案</h3>
-                    <p><SafeHtml html={active.answer} /></p>
-                  </section>
-                  <section>
-                    <h3>答题要点</h3>
-                    <ul>{active.points.map((p) => <li key={p}>{p}</li>)}</ul>
-                  </section>
-                  <section>
-                    <h3>追问链路</h3>
-                    <div className="follow-chain">
-                      {active.followUps.map((f) => <span key={f}><MessageCircle size={14} />{f}</span>)}
-                    </div>
-                  </section>
-                  <section>
-                    <h3>易错点</h3>
-                    <div className="trap-list">
-                      {active.traps.map((t) => <Tag key={t} tone="hot">{t}</Tag>)}
-                    </div>
-                  </section>
+                  <AnswerVersionTabs question={active} showFollowUps={true} />
+                  <CrossReferences question={active} onNavigate={(route, q) => goTo(route as RouteId, q)} />
                 </div>
               </>
             )}

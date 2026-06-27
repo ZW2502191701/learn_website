@@ -1,4 +1,15 @@
-import type { Favorite, ProgressStatus, StudyProgress, UserState, WrongQuestion } from '../../types';
+import type {
+  Favorite,
+  InterviewSession,
+  LearningSession,
+  MasteryRecord,
+  ProgressStatus,
+  ProjectExpression,
+  ReviewScheduleItem,
+  StudyProgress,
+  UserState,
+  WrongQuestion
+} from '../../types';
 
 const dateKey = (offset = 0) => {
   const date = new Date();
@@ -87,4 +98,59 @@ export const toggleTodayCheckin = (state: UserState): UserState => {
 export const updateWrongNote = (state: UserState, questionId: string, note: string): UserState => ({
   ...state,
   wrongQuestions: state.wrongQuestions.map((item) => (item.questionId === questionId ? { ...item, note } : item))
+});
+
+export const addReviewScheduleItem = (state: UserState, item: ReviewScheduleItem): UserState => ({
+  ...state,
+  reviewSchedule: [...state.reviewSchedule.filter((r) => r.questionId !== item.questionId), item]
+});
+
+export const updateReviewScheduleItem = (
+  state: UserState,
+  questionId: string,
+  updates: Partial<ReviewScheduleItem>
+): UserState => ({
+  ...state,
+  reviewSchedule: state.reviewSchedule.map((r) =>
+    r.questionId === questionId ? { ...r, ...updates } : r
+  )
+});
+
+export const removeReviewScheduleItem = (state: UserState, questionId: string): UserState => ({
+  ...state,
+  reviewSchedule: state.reviewSchedule.filter((r) => r.questionId !== questionId)
+});
+
+export const addInterviewSession = (state: UserState, session: InterviewSession): UserState => ({
+  ...state,
+  interviewSessions: [...state.interviewSessions, session]
+});
+
+export const updateInterviewSession = (
+  state: UserState,
+  sessionId: string,
+  updates: Partial<InterviewSession>
+): UserState => ({
+  ...state,
+  interviewSessions: state.interviewSessions.map((s) =>
+    s.id === sessionId ? { ...s, ...updates } : s
+  )
+});
+
+export const addLearningSession = (state: UserState, session: LearningSession): UserState => ({
+  ...state,
+  learningSessions: [...state.learningSessions, session]
+});
+
+export const addMasteryRecord = (state: UserState, record: MasteryRecord): UserState => ({
+  ...state,
+  masteryHistory: [...state.masteryHistory, record]
+});
+
+export const upsertProjectExpression = (state: UserState, expression: ProjectExpression): UserState => ({
+  ...state,
+  projectExpressions: [
+    ...state.projectExpressions.filter((e) => e.id !== expression.id),
+    expression
+  ]
 });

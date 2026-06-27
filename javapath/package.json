@@ -9,7 +9,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "convert:data": "node tools/convert-legacy-data.mjs",
     "validate:data": "node tools/validate-data.mjs",
-    "smoke:visual": "node tools/visual-smoke.mjs"
+    "smoke:visual": "node tools/visual-smoke.mjs",
+    "test": "node --test tests/services.test.ts",
+    "test:all": "npm run validate:data && npm run test"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

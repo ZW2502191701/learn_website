@@ -6,6 +6,8 @@ import { SafeHtml } from '../components/SafeHtml';
 import { appData, knowledgeLookup, moduleLookup, questionLookup, scenarioLookup } from '../data/appData';
 import { getProgress, masteryForModule, statusLabel } from '../lib/metrics';
 import { toggleFavorite, upsertProgress } from '../lib/storage';
+import { masteryScore, masteryLevel } from '../services/masteryService';
+import { Search } from 'lucide-react';
 
 type NodeStatus = 'not-started' | 'learning' | 'mastered' | 'review' | 'wrong' | 'scenario';
 

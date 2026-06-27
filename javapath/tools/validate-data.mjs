@@ -46,8 +46,13 @@ const legacyExports = executeCjs('src/data/legacyChapters.ts', {
   './legacyTypes': {}
 });
 
+const enrichmentExports = executeCjs('src/data/contentEnrichment.ts', {
+  '../types': {}
+});
+
 const appExports = executeCjs('src/data/appData.ts', {
   './legacyChapters': legacyExports,
+  './contentEnrichment': enrichmentExports,
   '../types': {}
 });
 
@@ -205,6 +210,52 @@ for (const module of appData.modules) {
   }
 }
 
+// ── 内容丰富度检查 ──────────────────────────────────────────────────
+// 检查面试题答案质量
+const emptyAnswers = appData.questions.filter((q) => !q.answer || q.answer.length < 20);
+if (emptyAnswers.length) {
+  addWarning(`${emptyAnswers.length} question(s) have very short answers (<20 chars).`);
+}
+
+// 检查知识点是否有核心概念
+const emptyConcepts = appData.knowledgePoints.filter((kp) => !kp.coreConcepts?.length);
+if (emptyConcepts.length) {
+  addWarning(`${emptyConcepts.length} knowledge point(s) have no core concepts.`);
+}
+
+// 检查场景是否有完整的分析路径
+const incompleteScenarios = appData.scenarios.filter((s) => !s.analysisPath?.length || !s.expressionTemplate);
+if (incompleteScenarios.length) {
+  addWarning(`${incompleteScenarios.length} scenario(s) missing analysis path or expression template.`);
+}
+
+// 检查每模块面试题覆盖率
+for (const module of appData.modules) {
+  const moduleQuestions = appData.questions.filter((q) => q.moduleId === module.id);
+  if (moduleQuestions.length === 0) {
+    addWarning(`module "${module.title}" has no interview questions.`);
+  }
+}
+
+// 检查高频知识点是否有追问链
+const highFreqPoints = appData.knowledgePoints.filter((kp) =>
+  kp.tags?.some((t) => t.includes('面试高频') || t.includes('重点'))
+);
+const pointsWithoutFollowUps = highFreqPoints.filter((kp) => {
+  const relatedQs = appData.questions.filter((q) => q.knowledgePointId === kp.id);
+  return relatedQs.every((q) => !q.followUps?.length);
+});
+if (pointsWithoutFollowUps.length) {
+  addWarning(`${pointsWithoutFollowUps.length} high-frequency knowledge point(s) have no follow-up questions.`);
+}
+
+// 检查 study plan 覆盖率
+const planModuleIds = new Set(appData.studyPlans.flatMap((p) => p.dailyTasks.flatMap((t) => t.moduleIds)));
+const uncoveredModules = appData.modules.filter((m) => !planModuleIds.has(m.id));
+if (uncoveredModules.length) {
+  addWarning(`${uncoveredModules.length} module(s) not covered by any study plan: ${uncoveredModules.map((m) => m.title).join(', ')}.`);
+}
+
 // ── 输出报告 ───────────────────────────────────────────────────────
 const summary = {
   modules: appData.modules.length,
@@ -214,6 +265,9 @@ const summary = {
   scenarios: appData.scenarios.length,
   studyPlans: appData.studyPlans.length,
   contentVersion: appExports.CONTENT_VERSION ?? 'unknown',
+  enrichedQuestions: appData.questions.filter((q) => q.interviewAnswer || q.oralAnswer || q.projectAnswer).length,
+  questionsWithFollowUps: appData.questions.filter((q) => q.followUps?.length > 0).length,
+  questionsWithTraps: appData.questions.filter((q) => q.traps?.length > 0).length,
   warnings: warnings.length,
   errors: errors.length
 };

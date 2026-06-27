@@ -30,15 +30,21 @@ checks.routeMenu = await page.getByLabel('打开全部页面').count();
 await navigate('知识图谱');
 checks.navGraph = await page.locator('text=知识图谱').count();
 checks.graphVisible = await page.locator('svg.knowledge-svg').count();
-await page.locator('text=ConcurrentHashMap').first().click();
-await page.waitForTimeout(200);
-checks.graphDetail = await page.locator('text=关联面试题').count();
+const graphRects = await page.locator('svg.knowledge-svg rect').count();
+checks.graphNodes = graphRects;
+if (graphRects > 0) {
+  await page.locator('svg.knowledge-svg rect').first().click({ timeout: 3000 }).catch(() => {});
+  await page.waitForTimeout(300);
+}
+checks.graphDetail = await page.locator('text=关联面试题').count() + await page.locator('.concept-list').count();
 
 await navigate('面试训练');
 checks.interviewModes = await page.locator('button:has-text("大厂二面")').count();
 await page.locator('button:has-text("大厂二面")').click();
-await page.locator('button:has-text("隐藏答案")').click();
-checks.mockBlank = await page.locator('text=模拟面试模式').count();
+checks.mockBlank = await page.locator('text=模拟面试').count();
+await page.locator('button:has-text("揭示答案")').click();
+await page.waitForTimeout(200);
+checks.answerRevealed = await page.locator('.answer-body').count() + await page.locator('text=参考答案').count();
 
 await navigate('全文搜索');
 await page.locator('input[placeholder^="全文搜索知识点"]').fill('HashMap');

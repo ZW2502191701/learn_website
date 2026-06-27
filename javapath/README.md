@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 JavaPath — Java 后端进阶学习平台
+# JavaPath — Java 后端面试学习操作系统
 
 **面向 Java 后端工程师的沉浸式学习、面试训练与知识管理平台**
 
@@ -8,497 +8,323 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
 
-<br/>
-
-[功能特性](#-功能特性) · [快速开始](#-快速开始) · [项目架构](#-项目架构) · [数据管线](#-数据管线) · [技术决策](#-技术决策)
+[功能特性](#功能特性) · [快速开始](#快速开始) · [项目架构](#项目架构) · [数据管线](#数据管线) · [后端化路线](#后端化路线)
 
 </div>
 
 ---
 
-## 📖 项目简介
+## 项目简介
 
-JavaPath 不是一个普通的文档站点，而是一个围绕 **11 份 Java 后端核心学习资料** 构建的工程师工具型产品。它专为以下场景设计：
+JavaPath 不是普通文档站，而是一个围绕 **11 份 Java 后端核心 PDF** 构建的工程师学习操作系统。核心能力：
 
-- 📚 **系统化学习** — 从 Java 基础到微服务架构的完整学习路径
-- 🎯 **面试训练** — 覆盖基础题、源码题、场景题、八股题、系统设计题
-- 🔄 **错题复盘** — 基于多因子算法的智能复习调度
-- 🗺️ **知识图谱** — 可视化知识点依赖关系，理清学习脉络
-- 💡 **场景实战** — 秒杀系统、缓存穿透、慢查询优化等高频面试场景
-- 📝 **表达训练** — 结构化技术场景表达模板，提升面试表达能力
-
-### 覆盖的知识模块
-
-| 模块 | 核心内容 |
-|------|----------|
-| 集合框架 | ArrayList / HashMap / ConcurrentHashMap 源码分析 |
-| 多线程 | 线程池 / 锁机制 / CAS / volatile / JMM |
-| JVM | 内存模型 / GC 算法 / 类加载 / 性能调优 |
-| MySQL | 索引原理 / 事务隔离 / 慢查询优化 / 分库分表 |
-| Redis | 数据结构 / 缓存策略 / 持久化 / 集群方案 |
-| SSM 框架 | Spring IOC/AOP / MyBatis 原理 / SpringBoot 自动装配 |
-| 微服务 | 服务治理 / 负载均衡 / 熔断降级 / 链路追踪 |
-| 消息队列 | RabbitMQ / Kafka / RocketMQ 原理与可靠性保证 |
-| 设计模式 | 常用模式在实际项目中的应用 |
-| 场景实战 | 高频系统设计场景的分析与表达 |
-| 面试冲刺 | 面试技巧、项目包装、HR 面准备 |
+- **PDF 知识萃取** — 自动解析 PDF 生成结构化知识点和面试题
+- **多版本答案** — 每道题提供标准版、背诵版、深度版、口语版、项目结合版
+- **模拟面试房间** — 7 种面试模式，完整面试流程+面试报告
+- **间隔复习 (SM-2)** — Anki 级别的间隔重复算法
+- **项目表达训练** — 6 大模块的项目表达模板
+- **知识图谱** — 可视化知识点依赖和掌握度
+- **学习分析** — 趋势图、热力图、模块掌握度分析
 
 ---
 
-## ✨ 功能特性
+## 功能特性
 
-### 🏠 Dashboard 总览
+### 面试训练系统
+- **7 种面试模式**: 一面 / 二面 / HR / 大厂高压 / 快速刷题 / 错题重练 / 薄弱点专项
+- **每题 6 个版本**: 标准答案 → 背诵版(30s) → 深度版(源码) → 口语版 → 项目结合 → 常见错误
+- **主动回忆模式**: 先写答案 → 对比参考 → 关键要点勾选 → 自动评分
+- **追问链路**: 每道题附带 3 个面试官可能追问
+- **跨引用关联**: 题目 ↔ 知识点 ↔ 场景 ↔ 项目表达
 
-- 学习进度 KPI 卡片（已学 / 进行中 / 待复习）
-- 14 天学习热力图，直观展示学习节奏
-- 薄弱模块自动检测与智能推荐
-- 面试倒计时器
-- 最近学习时间线
+### 学习系统
+- **11 个知识模块**: 集合 / 并发 / JVM / MySQL / Redis / Spring / 微服务 / MQ / 设计模式 / 场景 / 面经
+- **4 条学习路径**: 初级(30天) / 中级(45天) / 高级(60天) / 30天冲刺
+- **知识图谱**: 力导向图，节点颜色表示掌握度
+- **场景实战**: 秒杀 / 缓存穿透 / 慢查询 / 分布式事务 / MQ可靠性 / OOM排查
 
-### 📈 学习路径
+### 复习系统
+- **SM-2 间隔复习**: 完全不会 / 模糊 / 基本会 / 很熟 / 秒答 五档评分
+- **错题本**: 按模块统计、优先级排序、复盘笔记
+- **今日推荐**: 基于掌握度、遗忘风险、错题频率的智能推荐
 
-12 步可视化时间线，从 Java 基础到面试冲刺，每步关联对应模块和预估学时：
-
-```
-Java 基础 → 集合源码 → JVM → 并发 → 数据库 → 缓存
-    → 框架 → 微服务 → 消息队列 → 设计模式 → 系统设计 → 面试冲刺
-```
-
-### 📚 知识模块
-
-- **三栏阅读布局**：模块侧栏 → 知识点列表 → 详情面板
-- 章节展开、标签筛选、难度标注
-- 四种掌握状态：`未开始` / `学习中` / `已掌握` / `待复习`
-- 个人笔记与收藏功能
-- 关联面试题一键跳转
-
-### 🕸️ 知识图谱
-
-SVG 渲染的知识点依赖关系图，例如：
-
-```
-HashMap → ConcurrentHashMap → CAS → volatile → JMM → JVM 内存模型
-```
-
-- 节点颜色按掌握状态着色
-- 点击节点查看详细解释和关联题目
-- 帮助理解前置知识链路
-
-### 🎤 面试训练
-
-- **七大题型**：基础题、源码题、场景题、八股题、项目题、系统设计题、HR 面
-- **模拟面试模式**：大厂一面 / 二面 / HR 面
-- 追问链路与错题标记
-- 频率标注，聚焦高频考点
-
-### 🛠️ 场景实战
-
-6 个深度技术场景，每个包含背景、分析路径、解决方案、架构图和表达模板：
-
-| 场景 | 关键技术点 |
-|------|-----------|
-| 秒杀系统 | 限流 / 预扣库存 / 异步下单 / 分布式锁 |
-| Redis 缓存问题 | 穿透 / 击穿 / 雪崩 / 一致性 |
-| MySQL 慢查询 | 执行计划 / 索引优化 / 分页优化 |
-| 分布式事务 | TCC / Saga / 最终一致性 / Seata |
-| MQ 可靠性 | 消息丢失 / 重复消费 / 顺序性 |
-| JVM OOM | 内存溢出排查 / 堆转储分析 |
-
-### 📅 学习计划
-
-- 7 / 14 / 30 / 60 天灵活计划
-- 每日任务与时间预算
-- 每日打卡与进度追踪
-- 智能推荐下一步学习内容
-
-### 🔄 智能复习
-
-多因子优先级算法，综合 6 个维度排序错题：
-
-| 因子 | 权重 | 说明 |
-|------|------|------|
-| 时间衰减 | 高 | 越久没复习优先级越高 |
-| 模块掌握度 | 高 | 薄弱模块的题优先 |
-| 错误次数 | 中 | 错得越多越需要巩固 |
-| 收藏标记 | 中 | 收藏但未掌握的优先 |
-| 正确率 | 中 | 正确率低的优先复习 |
-| 新鲜度 | 低 | 新题稍后复习 |
-
-### 🔍 全文搜索
-
-- 跨知识点、面试题、场景题搜索
-- 加权评分：标题 > 标签 > 正文
-- 搜索结果高亮与摘要提取
-- 按模块分组展示
-
-### ⌨️ 命令面板
-
-`Ctrl+K` 快速唤起命令面板：
-
-- 快速跳转任意页面
-- 搜索知识点 / 面试题 / 场景
-- 执行操作：打卡、导出状态、重置进度
-
-### 🎨 主题与响应式
-
-- 亮色 / 暗色主题切换
-- 三档响应式断点：1280px / 980px / 640px
-- 移动端底部导航栏
-- 侧栏折叠与自适应网格
+### 数据分析
+- **Dashboard 学习驾驶舱**: 掌握度雷达图、遗忘风险预警、面试准备度评分
+- **学习分析页**: 7天/30天趋势、模块掌握度、错题分布、连续打卡统计
 
 ---
 
-## 🚀 快速开始
-
-### 环境要求
-
-- Node.js >= 18
-- npm >= 9
-
-### 安装与运行
+## 快速开始
 
 ```bash
-# 克隆项目
-git clone <repository-url>
-cd learn_website/javapath
-
 # 安装依赖
+cd javapath
 npm install
 
-# 启动开发服务器
-npm run dev
-```
+# 开发
+npm run dev              # http://localhost:5173
 
-访问 [http://127.0.0.1:5173/](http://127.0.0.1:5173/) 即可使用。
+# 构建
+npm run build            # TypeScript + Vite 构建
 
-### 常用命令
+# 验证
+npm run validate:data    # 数据完整性校验
+npm run test             # 单元测试 (24 tests)
+npm run smoke:visual     # Playwright 可视化冒烟测试
 
-```bash
-npm run dev           # 启动开发服务器
-npm run build         # TypeScript 类型检查 + Vite 生产构建
-npm run convert:data  # 从 web/data/*.js 重新生成 legacyChapters.ts
-npm run validate:data # 数据完整性校验
-npm run smoke:visual  # Playwright 视觉冒烟测试（需先启动 dev server）
+# Docker
+docker compose up        # http://localhost:3000
 ```
 
 ---
 
-## 🏗️ 项目架构
-
-### 目录结构
+## 项目架构
 
 ```
 javapath/
-├── index.html                     # Vite 入口
-├── package.json
-├── vite.config.ts                 # Vite 配置（Tailwind + 手动分包）
-├── tsconfig.json
-│
-├── web/
-│   └── data/                      # Legacy 原始数据（11 个 JS 文件）
-│       ├── collections.js
-│       ├── threads.js
-│       ├── jvm.js
-│       ├── mysql.js
-│       ├── redis.js
-│       ├── ssm.js
-│       ├── mq.js
-│       ├── microservice.js
-│       ├── designpattern.js
-│       ├── scenario.js
-│       └── interview.js
+├── src/
+│   ├── api/                    # API 抽象层 (后端化就绪)
+│   │   ├── types.ts            # API 请求/响应类型 (匹配 Spring Boot Controller)
+│   │   ├── client.ts           # ApiClient 接口定义
+│   │   ├── localClient.ts      # localStorage 实现 (当前使用)
+│   │   ├── remoteClient.ts     # REST API 实现 (Spring Boot 就绪)
+│   │   └── index.ts            # 工厂函数 + 导出
+│   │
+│   ├── services/               # 业务逻辑层 (纯函数，无副作用)
+│   │   ├── masteryService.ts   # 掌握度计算、遗忘风险
+│   │   ├── reviewService.ts    # SM-2 间隔复习算法
+│   │   ├── interviewService.ts # 面试会话管理、评分
+│   │   ├── recommendationService.ts # 今日推荐、准备度评分
+│   │   └── analyticsService.ts # 学习趋势、模块分析
+│   │
+│   ├── components/             # UI 组件
+│   │   ├── AnswerVersionTabs   # 6版本答案标签页
+│   │   ├── CrossReferences     # 跨引用关联面板
+│   │   ├── KnowledgeDepthTabs  # 知识点深度标签页
+│   │   ├── SpacedReviewSession # 间隔复习闪卡会话
+│   │   ├── ChartsExtended      # SVG 雷达图、趋势线
+│   │   └── interview-room/     # 模拟面试房间组件
+│   │
+│   ├── routes/                 # 页面路由 (懒加载)
+│   │   ├── DashboardRoute      # 学习驾驶舱
+│   │   ├── InterviewRoute      # 面试训练
+│   │   ├── InterviewRoomRoute  # 模拟面试房间
+│   │   ├── ReviewRoute         # 复习中心 (含SM-2)
+│   │   ├── ModulesRoute        # 知识模块阅读器
+│   │   ├── KnowledgeGraphRoute # 知识图谱
+│   │   ├── ProjectExpressionRoute # 项目表达训练
+│   │   ├── ScenariosRoute      # 场景实战
+│   │   ├── AnalyticsRoute      # 学习分析
+│   │   ├── LearningPathRoute   # 学习路径
+│   │   └── SearchRoute         # 全局搜索
+│   │
+│   ├── data/                   # 数据层
+│   │   ├── appData.ts          # 数据归一化引擎
+│   │   ├── legacyChapters.ts   # PDF解析→TypeScript (自动生成)
+│   │   ├── contentEnrichment.ts# 多版本答案补充数据
+│   │   └── projectExpressions.ts # 项目表达模板
+│   │
+│   ├── lib/                    # 工具库
+│   │   ├── storage/            # 存储抽象层 (适配器模式)
+│   │   ├── search.ts           # 全文搜索引擎
+│   │   ├── metrics.ts          # 掌握度、正确率计算
+│   │   ├── reviewScheduler.ts  # 复习优先级排序
+│   │   ├── graphBuilder.ts     # 知识图谱数据构建
+│   │   └── contentHelpers.ts   # 内容生成辅助
+│   │
+│   └── types.ts                # 全局类型定义
 │
 ├── scripts/
-│   └── parse_pdfs.py              # 离线 PDF 解析脚本（PyMuPDF）
+│   └── parse_pdfs.py           # PDF 解析管线 v2 (draft→review→publish)
 │
 ├── tools/
-│   ├── convert-legacy-data.mjs    # JS → TypeScript 数据转换
-│   ├── validate-data.mjs          # 数据完整性校验
-│   └── visual-smoke.mjs           # Playwright 视觉测试
+│   ├── convert-legacy-data.mjs # JS→TS 数据转换
+│   ├── validate-data.mjs       # 数据完整性+质量校验
+│   └── visual-smoke.mjs        # Playwright 可视化冒烟测试
 │
-└── src/
-    ├── main.tsx                   # React 入口
-    ├── App.tsx                    # 根组件（懒加载路由）
-    ├── types.ts                   # 核心类型定义
-    ├── styles.css                 # 设计系统（~3600 行 CSS）
-    │
-    ├── components/                # 通用组件
-    │   ├── AppShell.tsx           # 主布局：顶栏 / 侧栏 / 命令面板 / 移动端底栏
-    │   ├── ArchitectureDiagram.tsx # SVG 架构图
-    │   ├── Charts.tsx             # 环形图 / 热力图
-    │   ├── ConfirmDialog.tsx      # 确认弹窗
-    │   ├── ErrorBoundary.tsx      # 错误边界
-    │   ├── Primitives.tsx         # 基础 UI 原语
-    │   ├── SafeHtml.tsx           # HTML 安全渲染
-    │   └── Toast.tsx              # Toast 通知
-    │
-    ├── data/                      # 数据层
-    │   ├── legacyTypes.ts         # Legacy 数据类型
-    │   ├── legacyChapters.ts      # 由 web/data/*.js 生成（2148 行）
-    │   └── appData.ts             # 运行时归一化 → Module / Chapter / ...
-    │
-    ├── hooks/                     # 自定义 Hooks
-    │   ├── useDebounce.ts
-    │   ├── useStorageSync.ts      # 本地 + 远程状态同步
-    │   └── useToast.ts
-    │
-    ├── lib/                       # 核心逻辑库
-    │   ├── hashRouter.ts          # Hash 路由
-    │   ├── metrics.ts             # 掌握度计算 / 薄弱检测 / 推荐
-    │   ├── reviewScheduler.ts     # 错题优先级调度器
-    │   ├── sanitize.ts            # HTML 净化
-    │   ├── search.ts              # 全文搜索（加权评分）
-    │   └── storage/               # 存储抽象层
-    │       ├── adapter.ts         # StorageAdapter 接口 + LocalStorage 实现
-    │       ├── serialization.ts   # 状态序列化 / 版本化 / 导入导出
-    │       ├── mutations.ts       # 纯函数状态变更
-    │       ├── merge.ts           # 状态合并
-    │       └── remoteAdapter.ts   # 内存远程适配器（预留后端接入）
-    │
-    └── routes/                    # 页面路由
-        ├── DashboardRoute.tsx     # 总览仪表盘
-        ├── LearningPathRoute.tsx  # 学习路径
-        ├── ModulesRoute.tsx       # 知识模块
-        ├── KnowledgeGraphRoute.tsx # 知识图谱
-        ├── InterviewRoute.tsx     # 面试训练
-        ├── ScenariosRoute.tsx     # 场景实战
-        ├── PlanRoute.tsx          # 学习计划
-        ├── ReviewRoute.tsx        # 错题复习
-        └── SearchRoute.tsx        # 全文搜索
-```
-
-### 技术栈
-
-| 层级 | 技术 | 说明 |
-|------|------|------|
-| 框架 | React 19 + TypeScript 5.7 | 类型安全的组件开发 |
-| 构建 | Vite 6 | 极速 HMR + 生产优化 |
-| 样式 | Tailwind CSS v4 + 自定义 CSS | 原子化 + 设计系统 |
-| 图标 | lucide-react | 轻量图标库 |
-| 路由 | 自定义 Hash Router | 零依赖，极简实现 |
-| 状态 | React useState + 纯函数 | 无外部状态库 |
-| 持久化 | localStorage + 可插拔适配器 | 预留后端接入 |
-| 测试 | Playwright | 视觉回归测试 |
-
-### 核心类型模型
-
-```typescript
-// 学习进度状态
-type ProgressStatus = 'not-started' | 'learning' | 'mastered' | 'review';
-
-// 知识模块
-interface Module {
-  id: string;
-  title: string;
-  source: string;          // 来源 PDF
-  area: string;            // 技术领域
-  importance: number;       // 重要度 (1-5)
-  estimatedHours: number;   // 预估学时
-  tags: string[];
-  chapterIds: string[];
-}
-
-// 知识点
-interface KnowledgePoint {
-  id: string;
-  title: string;
-  difficulty: 1 | 2 | 3 | 4 | 5;
-  coreConcepts: Array<{ title: string; body: string }>;
-  pitfalls: string[];       // 常见踩坑
-  dependencies: string[];   // 前置知识 ID
-  relatedQuestionIds: string[];
-}
-
-// 面试题
-interface InterviewQuestion {
-  category: '基础题' | '源码题' | '场景题' | '八股题' | '项目题' | '系统设计题' | 'HR面';
-  title: string;
-  answer: string;
-  points: string[];         // 得分要点
-  followUps: string[];      // 追问链路
-  traps: string[];          // 常见陷阱
-  frequency: number;        // 面试频率
-}
-
-// 用户状态
-interface UserState {
-  progress: Record<string, StudyProgress>;
-  favorites: Favorite[];
-  wrongQuestions: WrongQuestion[];
-  notes: Record<string, string>;
-  checkins: string[];       // 打卡记录
-  targetDate: string;       // 面试目标日期
-  theme: 'light' | 'dark';
-}
+├── tests/
+│   └── services.test.ts        # 核心算法单元测试 (24 tests)
+│
+├── web/data/                   # 源数据 (11个JS文件，手工维护)
+│
+├── learn/                      # 源 PDF (11份)
+│
+├── Dockerfile                  # 多阶段构建
+├── docker-compose.yml          # 容器编排 (含未来后端预留)
+└── vite.config.ts              # Vite 配置
 ```
 
 ---
 
-## 📊 数据管线
-
-### 内容生产流程
+## 数据管线
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────────────┐
-│  Source PDFs │────▶│ parse_pdfs.py│────▶│ Draft JSON/Markdown │
-│  (learn/*.pdf)│     │  (PyMuPDF)   │     │  (人工校对)          │
-└─────────────┘     └──────────────┘     └─────────────────────┘
-                                                │
-                                                ▼
-┌─────────────┐     ┌──────────────┐     ┌─────────────────────┐
-│  web/data/   │────▶│ convert:data │────▶│ legacyChapters.ts   │
-│  *.js (curated)│    │  (sandbox)   │     │ (2148 行 TypeScript) │
-└─────────────┘     └──────────────┘     └─────────────────────┘
-                                                │
-                                                ▼
-┌─────────────┐     ┌──────────────┐     ┌─────────────────────┐
-│  运行时使用   │◀────│  appData.ts  │◀────│ 归一化模型输出        │
-│  (React 组件) │     │ (归一化)      │     │ Module/Chapter/KP/...│
-└─────────────┘     └──────────────┘     └─────────────────────┘
+PDF 源文件 (learn/*.pdf)
+    │
+    ▼ parse_pdfs.py v2
+Draft JSON (draft 状态, 含 confidence 分数)
+    │
+    ▼ 人工校对 (markdown/)
+Review JSON (review 状态)
+    │
+    ▼ validate-data.mjs 校验
+web/data/*.js (published 状态)
+    │
+    ▼ convert-legacy-data.mjs
+src/data/legacyChapters.ts (TypeScript, 自动生成)
+    │
+    ▼ appData.ts 归一化
+AppData { modules, chapters, knowledgePoints, questions, scenarios, studyPlans }
+    │
+    ▼ contentEnrichment.ts 合并
+每道题 → 标准答案 + 背诵版 + 深度版 + 口语版 + 项目结合 + 常见错误
 ```
 
-### 数据校验
+### 内容工作流
 
-```bash
-npm run validate:data
-```
+| 状态 | 描述 | 负责人 |
+|------|------|--------|
+| draft | PDF 自动解析, confidence < 0.8 标记 needsReview | 机器 |
+| review | 人工校对 markdown, 修正内容 | 人工 |
+| published | 通过 validate-data 校验, 发布到 web/data/ | CI |
 
-校验规则：
+---
 
-- ✅ ID 唯一性（模块 / 章节 / 知识点 / 面试题 / 场景 / 计划）
-- ✅ 引用完整性（所有跨实体引用指向存在的 ID）
-- ✅ 内容质量（重复标题、空正文、孤立节点）
-- ✅ 结构一致性（章节排序、模块关联）
+## 数据模型
 
-### PDF 解析（离线 Draft）
+核心 TypeScript 接口 (src/types.ts):
 
-```bash
-python scripts/parse_pdfs.py --src "D:\AI_Test\learn" --out "D:\AI_Test\javapath\output"
-```
-
-产出物：
-
-| 文件 | 用途 |
+| 接口 | 用途 |
 |------|------|
-| `knowledge.json` / `summary.json` | 程序消费的标准 JSON |
-| `knowledge.js` | 浏览器可直接引入的 `window.KNOWLEDGE_DATA` |
-| `*.md` | 逐 PDF Markdown，便于人工校对 |
-| `assets/` | 提取的图片资源 |
-
-> ⚠️ **重要**：PDF 解析结果应作为 draft/校对输入，不应无审查覆盖 curated 数据。接入时需保留 `sourcePdf`、`confidence`、`needsReview` 等来源字段。
+| `Module` | 11个知识模块 (集合/并发/JVM/MySQL/Redis/SSM/MQ/微服务/设计模式/场景/面经) |
+| `Chapter` | 章节 (每模块 3-5 个) |
+| `KnowledgePoint` | 知识点 (56个, 含核心概念、代码、依赖关系) |
+| `InterviewQuestion` | 面试题 (121道, 含6版本答案、追问链、易错点) |
+| `Scenario` | 场景实战 (6个: 秒杀/缓存/慢查询/分布式事务/MQ/OOM) |
+| `StudyPlan` | 学习计划 (7/14/30/60天) |
+| `UserState` | 用户状态 (进度/收藏/错题/笔记/复习计划/面试记录/学习会话) |
+| `ReviewScheduleItem` | SM-2 复习调度 (easeFactor/intervalDays/repetitions) |
+| `InterviewSession` | 面试会话 (模式/题目/答案/评分/报告) |
+| `ProjectExpression` | 项目表达模板 (业务背景→技术问题→选型→设计→代码→问题→优化) |
 
 ---
 
-## 🎯 技术决策
+## API 抽象层
 
-### 极简依赖
-
-项目仅依赖 3 个运行时库：
-
-```
-react + react-dom + lucide-react
-```
-
-- **无 React Router** — 自定义 Hash Router，~50 行代码实现路由解析与跳转
-- **无 Redux / Zustand** — React `useState` + 纯函数 mutation，状态变更可追溯
-- **无 UI 组件库** — 3600 行 `styles.css` 实现完整设计系统，CSS 自定义属性驱动主题
-
-### 可插拔存储架构
+项目设计了完整的 API 抽象层, 支持平滑切换到 Spring Boot 后端:
 
 ```typescript
-interface StorageAdapter {
-  load(): PersistedUserState | null;
-  save(state: PersistedUserState): void;
-  clear(): void;
+// src/api/client.ts — 接口定义
+interface ApiClient {
+  getAppData(): Promise<ApiResponse<AppData>>;
+  getUserState(): Promise<ApiResponse<UserState>>;
+  startSession(req): Promise<ApiResponse<StartSessionResponse>>;
+  submitAnswer(sessionId, req): Promise<ApiResponse<SubmitAnswerResponse>>;
+  getDueReviews(limit): Promise<ApiResponse<DueReviewItem[]>>;
+  search(req): Promise<ApiResponse<SearchResponse>>;
+  getDashboardSummary(): Promise<ApiResponse<DashboardSummary>>;
+  // ... 18 个方法
 }
 ```
 
-当前实现：
+**当前**: `LocalClient` — 基于 localStorage, 零网络开销
+**未来**: `RemoteClient` — 调用 Spring Boot REST API
 
-- `LocalStorageAdapter` — 浏览器 localStorage
-- `InMemoryRemoteAdapter` — 内存实现（预留后端接入）
+切换方式: 修改 `src/api/index.ts` 工厂函数, 或设置 `VITE_API_MODE=remote`
 
-未来接入 Spring Boot 后端时，只需实现 `StorageAdapter` 接口即可无缝切换。
+---
 
-### 懒加载路由
+## 后端化路线
 
-所有路由组件通过 `React.lazy()` 动态加载，配合 `<Suspense>` 骨架屏：
-
-```tsx
-const DashboardRoute = lazy(() => import('./routes/DashboardRoute'));
-const ModulesRoute = lazy(() => import('./routes/ModulesRoute'));
-// ...
+### Phase 1: Spring Boot 基础 (当前可启动)
+```
+Java 21 + Spring Boot 3 + MyBatis-Plus + PostgreSQL
+├── UserController          # JWT 认证
+├── ContentController       # 知识内容 CRUD
+├── StateController         # 用户状态同步 (对应 ApiClient.getUserState)
+├── InterviewController     # 面试会话管理
+├── ReviewController        # SM-2 复习调度
+├── SearchController        # 全文搜索 (Elasticsearch/Meilisearch)
+└── AnalyticsController     # 学习数据统计
 ```
 
-首屏仅加载当前路由的代码，显著降低初始包体积。
-
-### 内容版本化
-
-```typescript
-export const CONTENT_VERSION = 1;
-export const CONTENT_STATS = { modules: 11, chapters: 103, ... };
+### Phase 2: RAG 增强
+```
+PDF 解析 Worker (Python) → 向量化 → pgvector/Elasticsearch
+├── SemanticSearch          # 语义搜索
+├── SmartQA                 # 基于 RAG 的智能问答
+└── ContentRecommendation   # 个性化内容推荐
 ```
 
-支持未来数据结构迁移和管线追踪。
-
-### HTML 安全渲染
-
-PDF 解析内容包含原始 HTML，通过 `lib/sanitize.ts` 净化后渲染：
-
-- 移除 `<script>`、`<iframe>` 等危险标签
-- 剥离 `on*` 事件属性
-- 保留安全的格式化标签
+### Phase 3: 多端 & 协作
+```
+├── WebSocket               # 实时面试模拟
+├── Mobile App              # React Native / Flutter
+└── Team Features           # 学习小组、排名
+```
 
 ---
 
-## 🗺️ 路线图
+## 测试
 
-### 近期计划
+```bash
+npm run test             # 单元测试 (24 tests)
+  ├── SM-2 Algorithm          (7 tests)
+  ├── Mastery Scoring         (5 tests)
+  ├── Interview Readiness     (4 tests)
+  ├── Quality Button Mapping  (2 tests)
+  ├── Streak Calculation      (2 tests)
+  └── Forget Risk             (4 tests)
 
-- [ ] 后端服务接入（Spring Boot + MySQL + Redis）
-- [ ] 用户认证与多设备同步
-- [ ] 更多场景实战内容
-- [ ] 面试录音与回放分析
+npm run validate:data    # 数据完整性校验
+  ├── ID 唯一性检查
+  ├── 引用完整性检查
+  ├── 内容质量检查 (答案长度、概念覆盖、追问链)
+  └── 模块覆盖率检查
 
-### 中期规划
-
-- [ ] AI 驱动的个性化学习推荐
-- [ ] 社区功能（笔记分享、讨论区）
-- [ ] 移动端 App（React Native）
-- [ ] 更多语言支持
-
----
-
-## 🤝 参与贡献
-
-1. Fork 本仓库
-2. 创建功能分支：`git checkout -b feature/amazing-feature`
-3. 提交更改：`git commit -m 'feat: add amazing feature'`
-4. 推送分支：`git push origin feature/amazing-feature`
-5. 提交 Pull Request
-
-### 开发规范
-
-- 组件使用 PascalCase 命名
-- 工具函数使用 camelCase 命名
-- 类型定义使用 PascalCase 命名
-- CSS 类名使用 kebab-case 命名
-- 提交信息遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范
+npm run smoke:visual     # Playwright 可视化冒烟测试
+  ├── Dashboard 渲染
+  ├── 知识图谱交互
+  ├── 面试训练流程
+  ├── 搜索功能
+  ├── 深链导航
+  └── 移动端适配
+```
 
 ---
 
-## 📄 许可证
+## 技术栈
 
-本项目基于 [MIT License](LICENSE) 开源。
+| 层级 | 技术 |
+|------|------|
+| 框架 | React 19 + TypeScript 5.7 |
+| 构建 | Vite 6 + Tailwind CSS 4 |
+| 路由 | 自定义 hash router (零依赖) |
+| 状态 | useState + localStorage (适配器模式) |
+| 图标 | lucide-react |
+| 图表 | 纯 SVG (雷达图/趋势线/热力图/环形图) |
+| 测试 | Node.js 内置 test runner + Playwright |
+| 容器 | Docker + nginx |
+| API | 抽象层 (Local/Remote Client) |
 
 ---
 
-<div align="center">
+## 内容统计
 
-**JavaPath** — 让 Java 后端学习更有章法 🎯
+| 类别 | 数量 |
+|------|------|
+| 知识模块 | 11 |
+| 章节 | 42 |
+| 知识点 | 56 |
+| 面试题 | 121 (27 道已有多版本答案) |
+| 场景实战 | 6 |
+| 学习计划 | 4 (7/14/30/60天) |
+| 项目表达模板 | 6 |
+| 源 PDF | 11 |
 
-Made with ❤️ for Java Engineers
+---
 
-</div>
+## License
+
+MIT
